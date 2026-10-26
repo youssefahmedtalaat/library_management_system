@@ -2,15 +2,18 @@ import React, { useState, useMemo } from 'react';
 import { Search, Sparkles, BookOpen, X } from 'lucide-react';
 import BookCard from '../../components/BookCard';
 import { useLibrary } from '../../context/LibraryContext';
+import { getCategoryLabel } from '../../data/translations';
 
 export default function CatalogPage() {
-  const { books, openAIDrawer } = useLibrary();
+  const { books, openAIDrawer, lang, t } = useLibrary();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [availabilityFilter, setAvailabilityFilter] = useState('all'); // all, available, borrowed
   const [selectedLanguage, setSelectedLanguage] = useState('all');
   const [sortBy, setSortBy] = useState('rating'); // rating, year, title
+
+  const isRTL = lang === 'ar';
 
   // Extract unique categories
   const categories = useMemo(() => {
@@ -25,10 +28,16 @@ export default function CatalogPage() {
         // Query filter
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase();
-          const matchesTitle = book.title.toLowerCase().includes(q);
-          const matchesAuthor = book.author.toLowerCase().includes(q);
-          const matchesIsbn = book.isbn.toLowerCase().includes(q);
-          const matchesKeywords = book.match_keywords.some((k) => k.toLowerCase().includes(q));
+          const matchesTitle =
+            (book.title && book.title.toLowerCase().includes(q)) ||
+            (book.title_en && book.title_en.toLowerCase().includes(q)) ||
+            (book.title_ar && book.title_ar.toLowerCase().includes(q));
+          const matchesAuthor =
+            (book.author && book.author.toLowerCase().includes(q)) ||
+            (book.author_en && book.author_en.toLowerCase().includes(q)) ||
+            (book.author_ar && book.author_ar.toLowerCase().includes(q));
+          const matchesIsbn = book.isbn && book.isbn.toLowerCase().includes(q);
+          const matchesKeywords = book.match_keywords && book.match_keywords.some((k) => k.toLowerCase().includes(q));
           if (!matchesTitle && !matchesAuthor && !matchesIsbn && !matchesKeywords) {
             return false;
           }
@@ -48,8 +57,12 @@ export default function CatalogPage() {
         }
 
         // Language filter
-        if (selectedLanguage !== 'all' && !book.language.includes(selectedLanguage)) {
-          return false;
+        if (selectedLanguage !== 'all') {
+          if (selectedLanguage === 'العربية' || selectedLanguage === 'ar') {
+            if (!book.language?.includes('العربية') && !book.language_ar?.includes('العربية')) return false;
+          } else if (selectedLanguage === 'English' || selectedLanguage === 'en') {
+            if (!book.language?.includes('English') && !book.language_en?.includes('English')) return false;
+          }
         }
 
         return true;
@@ -57,10 +70,14 @@ export default function CatalogPage() {
       .sort((a, b) => {
         if (sortBy === 'rating') return b.rating - a.rating;
         if (sortBy === 'year') return b.publication_year - a.publication_year;
-        if (sortBy === 'title') return a.title.localeCompare(b.title);
+        if (sortBy === 'title') {
+          const titleA = lang === 'en' ? (a.title_en || a.title) : (a.title_ar || a.title);
+          const titleB = lang === 'en' ? (b.title_en || b.title) : (b.title_ar || b.title);
+          return titleA.localeCompare(titleB);
+        }
         return 0;
       });
-  }, [books, searchQuery, selectedCategory, availabilityFilter, selectedLanguage, sortBy]);
+  }, [books, searchQuery, selectedCategory, availabilityFilter, selectedLanguage, sortBy, lang]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -77,7 +94,7 @@ export default function CatalogPage() {
         className="card"
         style={{
           padding: '20px 24px',
-          marginBottom: '24px',
+          marginBottom: '20px',
           background: 'linear-gradient(135deg, var(--color-ai-surface) 0%, var(--bg-surface) 100%)',
           border: '1px solid var(--color-ai-border)',
           display: 'flex',
@@ -87,7 +104,7 @@ export default function CatalogPage() {
           flexWrap: 'wrap'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: '1 1 450px' }}>
           <div
             style={{
               width: '46px',
@@ -105,10 +122,10 @@ export default function CatalogPage() {
           </div>
           <div>
             <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-ai-accent)', margin: '0 0 4px 0' }}>
-              استكشف الفهرس بواسطة الذكاء الاصطناعي
+              {t('catalog.aiBannerTitle')}
             </h2>
             <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
-              صف ما ترغب في قراءته بلغتك الطبيعية (مثل: "قصة غموض مشوقة للمبتدئين" أو "مراجع الذكاء الاصطناعي") وسيقوم المساعد بشرح الترشيحات.
+              {t('catalog.aiBannerDesc')}
             </p>
           </div>
         </div>
@@ -117,17 +134,17 @@ export default function CatalogPage() {
           <button
             type="button"
             className="btn btn-ai"
-            onClick={() => openAIDrawer('قصة غموض قصيرة للمبتدئين')}
+            onClick={() => openAIDrawer(lang === 'en' ? 'Short mystery stories for beginners' : 'قصة غموض قصيرة للمبتدئين')}
           >
             <Sparkles size={15} />
-            <span>قصة غموض للمبتدئين</span>
+            <span>{t('catalog.promptMystery')}</span>
           </button>
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() => openAIDrawer('أفضل مراجع الذكاء الاصطناعي وهندسة البرمجيات')}
+            onClick={() => openAIDrawer(lang === 'en' ? 'Top AI & software engineering references' : 'أفضل مراجع الذكاء الاصطناعي وهندسة البرمجيات')}
           >
-            <span>كتب الذكاء الاصطناعي</span>
+            <span>{t('catalog.promptAI')}</span>
           </button>
         </div>
       </div>
@@ -137,7 +154,7 @@ export default function CatalogPage() {
         className="card"
         style={{
           padding: '18px 20px',
-          marginBottom: '24px',
+          marginBottom: '20px',
           backgroundColor: 'var(--bg-surface)'
         }}
       >
@@ -150,7 +167,8 @@ export default function CatalogPage() {
                 position: 'absolute',
                 top: '50%',
                 transform: 'translateY(-50%)',
-                right: '12px',
+                right: isRTL ? '12px' : 'auto',
+                left: isRTL ? 'auto' : '12px',
                 color: 'var(--text-muted)'
               }}
             />
@@ -159,8 +177,11 @@ export default function CatalogPage() {
               className="form-input"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث بالعنوان، اسم المؤلف، موضوع الكتاب، أو رقم الـ ISBN..."
-              style={{ paddingRight: '38px' }}
+              placeholder={t('catalog.searchPlaceholder')}
+              style={{
+                paddingRight: isRTL ? '38px' : '14px',
+                paddingLeft: isRTL ? '14px' : '38px'
+              }}
             />
             {searchQuery && (
               <button
@@ -170,12 +191,14 @@ export default function CatalogPage() {
                   position: 'absolute',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  left: '12px',
+                  right: isRTL ? 'auto' : '12px',
+                  left: isRTL ? '12px' : 'auto',
                   background: 'none',
                   border: 'none',
                   color: 'var(--text-muted)',
                   cursor: 'pointer'
                 }}
+                title={t('topbar.clearSearch')}
               >
                 <X size={16} />
               </button>
@@ -189,9 +212,9 @@ export default function CatalogPage() {
               value={availabilityFilter}
               onChange={(e) => setAvailabilityFilter(e.target.value)}
             >
-              <option value="all">حالة التوفر (الكل)</option>
-              <option value="available">متاح للإعارة فوراً</option>
-              <option value="borrowed">مُعار حالياً</option>
+              <option value="all">{t('catalog.filterAvailabilityAll')}</option>
+              <option value="available">{t('catalog.filterAvailableNow')}</option>
+              <option value="borrowed">{t('catalog.filterBorrowedNow')}</option>
             </select>
           </div>
 
@@ -202,9 +225,9 @@ export default function CatalogPage() {
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
             >
-              <option value="all">اللغة (الكل)</option>
-              <option value="العربية">اللغة العربية</option>
-              <option value="English">English</option>
+              <option value="all">{t('catalog.filterLangAll')}</option>
+              <option value="العربية">{t('catalog.filterLangAr')}</option>
+              <option value="English">{t('catalog.filterLangEn')}</option>
             </select>
           </div>
 
@@ -215,9 +238,9 @@ export default function CatalogPage() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
-              <option value="rating">الأعلى تقييماً ⭐</option>
-              <option value="year">الأحدث نشراً 📅</option>
-              <option value="title">أبجدياً بالاسم 🔤</option>
+              <option value="rating">{t('catalog.sortRating')}</option>
+              <option value="year">{t('catalog.sortYear')}</option>
+              <option value="title">{t('catalog.sortTitle')}</option>
             </select>
           </div>
         </div>
@@ -225,11 +248,11 @@ export default function CatalogPage() {
         {/* Category Filter Chips */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', overflowX: 'auto', paddingBottom: '4px' }}>
           <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-            التصنيفات:
+            {t('catalog.categoriesLabel')}
           </span>
           {categories.map((cat) => {
             const isSelected = selectedCategory === cat;
-            const label = cat === 'all' ? 'جميع التصنيفات' : cat;
+            const label = getCategoryLabel(cat, lang);
 
             return (
               <button
@@ -263,12 +286,14 @@ export default function CatalogPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '18px'
+          marginBottom: '16px',
+          flexWrap: 'wrap',
+          gap: '8px'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>
-            عناوين الفهرس المتاحة ({filteredBooks.length})
+            {t('catalog.availableCount', { n: filteredBooks.length })}
           </h2>
           {(searchQuery || selectedCategory !== 'all' || availabilityFilter !== 'all' || selectedLanguage !== 'all') && (
             <button
@@ -278,12 +303,12 @@ export default function CatalogPage() {
               style={{ fontSize: '0.78rem' }}
             >
               <X size={13} />
-              <span>إعادة تعيين الفلاتر</span>
+              <span>{t('catalog.resetFilters')}</span>
             </button>
           )}
         </div>
         <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-          عرض بطاقات النسخ مع مواقع الرفوف
+          {t('catalog.shelfLocationsNote')}
         </span>
       </div>
 
@@ -329,18 +354,22 @@ export default function CatalogPage() {
             <BookOpen size={32} />
           </div>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
-            لم نعثر على كتب مطابقة لمعايير البحث
+            {t('catalog.noBooksFound')}
           </h3>
           <p style={{ maxWidth: '420px', margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-            جرّب تغيير كلمات البحث، أو إلغاء تحديد فلاتر التوفر، أو اسأل أمين المكتبة الذكي للحصول على اقتراحات بديلة.
+            {t('catalog.noBooksFoundDesc')}
           </p>
           <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
             <button type="button" className="btn btn-secondary" onClick={clearFilters}>
-              مسح عوامل التصفية
+              {t('catalog.clearFilters')}
             </button>
-            <button type="button" className="btn btn-ai" onClick={() => openAIDrawer(searchQuery)}>
+            <button
+              type="button"
+              className="btn btn-ai"
+              onClick={() => openAIDrawer(searchQuery || (lang === 'en' ? 'Show top rated books' : 'أفضل الكتب تقييماً'))}
+            >
               <Sparkles size={16} />
-              <span>البحث بواسطة المساعد الذكي</span>
+              <span>{t('catalog.searchWithAI')}</span>
             </button>
           </div>
         </div>

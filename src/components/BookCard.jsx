@@ -2,13 +2,22 @@ import React from 'react';
 import { BookOpen, MapPin, Hash, Star, Calendar, BookmarkCheck } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { useLibrary } from '../context/LibraryContext';
+import { getBookTitle, getBookAuthor, getBookDescription, getBookCategory, getBookShelf } from '../data/mockData';
 
 export default function BookCard({ book }) {
-  const { openBookModal, reserveBook, currentRole } = useLibrary();
+  const { openBookModal, reserveBook, currentRole, lang } = useLibrary();
 
   const isAvailable = book.available_copies > 0;
   const statusKey = isAvailable ? 'available' : 'borrowed';
   const availabilityPercent = Math.round((book.available_copies / Math.max(1, book.total_copies)) * 100);
+
+  const displayTitle = getBookTitle(book, lang);
+  const displayAuthor = getBookAuthor(book, lang);
+  const displayDesc = getBookDescription(book, lang);
+  const displayCategory = getBookCategory(book, lang);
+  const displayShelf = getBookShelf(book, lang);
+
+  const isRTL = lang === 'ar';
 
   return (
     <div
@@ -25,7 +34,7 @@ export default function BookCard({ book }) {
       <div style={{ position: 'relative', height: '220px', overflow: 'hidden', backgroundColor: 'var(--bg-muted)' }}>
         <img
           src={book.cover_image}
-          alt={book.title}
+          alt={displayTitle}
           style={{
             width: '100%',
             height: '100%',
@@ -48,10 +57,10 @@ export default function BookCard({ book }) {
         />
 
         {/* Top Badges */}
-        <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 2 }}>
+        <div style={{ position: 'absolute', top: '12px', right: isRTL ? '12px' : 'auto', left: isRTL ? 'auto' : '12px', zIndex: 2 }}>
           <StatusBadge
             status={statusKey}
-            text={isAvailable ? `${book.available_copies} متاح` : 'مُعار بالكامل'}
+            text={isAvailable ? (lang === 'en' ? `${book.available_copies} Available` : `${book.available_copies} متاح`) : (lang === 'en' ? 'Checked Out' : 'مُعار بالكامل')}
             size="sm"
           />
         </div>
@@ -60,7 +69,8 @@ export default function BookCard({ book }) {
           style={{
             position: 'absolute',
             top: '12px',
-            left: '12px',
+            left: isRTL ? '12px' : 'auto',
+            right: isRTL ? 'auto' : '12px',
             zIndex: 2,
             backgroundColor: 'rgba(0, 0, 0, 0.65)',
             color: '#FCD34D',
@@ -101,7 +111,7 @@ export default function BookCard({ book }) {
               backdropFilter: 'blur(4px)'
             }}
           >
-            {book.category}
+            {displayCategory}
           </span>
           <span style={{ fontSize: '0.75rem', opacity: 0.9, display: 'flex', alignItems: 'center', gap: '3px' }}>
             <Calendar size={12} />
@@ -124,10 +134,10 @@ export default function BookCard({ book }) {
             }}
             onClick={() => openBookModal(book)}
           >
-            {book.title}
+            {displayTitle}
           </h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-            {book.author}
+            {displayAuthor}
           </p>
         </div>
 
@@ -142,7 +152,7 @@ export default function BookCard({ book }) {
             overflow: 'hidden'
           }}
         >
-          {book.description}
+          {displayDesc}
         </p>
 
         {/* Shelf location & ISBN */}
@@ -161,8 +171,8 @@ export default function BookCard({ book }) {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-primary)' }}>
             <MapPin size={14} color="var(--color-primary)" />
-            <span style={{ fontWeight: 600 }}>الموقع:</span>
-            <span>{book.shelf_location}</span>
+            <span style={{ fontWeight: 600 }}>{lang === 'en' ? 'Location:' : 'الموقع:'}</span>
+            <span>{displayShelf}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
             <Hash size={14} />
@@ -172,9 +182,9 @@ export default function BookCard({ book }) {
           {/* Availability progress meter */}
           <div style={{ marginTop: '4px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', marginBottom: '3px' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>النسخ المتاحة:</span>
+              <span style={{ color: 'var(--text-secondary)' }}>{lang === 'en' ? 'Available Copies:' : 'النسخ المتاحة:'}</span>
               <span style={{ fontWeight: 700, color: isAvailable ? 'var(--status-available-text)' : 'var(--status-borrowed-text)' }}>
-                {book.available_copies} من {book.total_copies}
+                {book.available_copies} {lang === 'en' ? 'of' : 'من'} {book.total_copies}
               </span>
             </div>
             <div
@@ -208,7 +218,7 @@ export default function BookCard({ book }) {
             onClick={() => openBookModal(book)}
           >
             <BookOpen size={14} />
-            <span>عرض النسخ</span>
+            <span>{lang === 'en' ? 'View Copies' : 'عرض النسخ'}</span>
           </button>
 
           {currentRole === 'member' && (
@@ -219,7 +229,7 @@ export default function BookCard({ book }) {
               onClick={() => reserveBook(book.id)}
             >
               <BookmarkCheck size={14} />
-              <span>{isAvailable ? 'حجز مسبق' : 'انضم للطابور'}</span>
+              <span>{isAvailable ? (lang === 'en' ? 'Place Hold' : 'حجز مسبق') : (lang === 'en' ? 'Join Queue' : 'انضم للطابور')}</span>
             </button>
           )}
         </div>

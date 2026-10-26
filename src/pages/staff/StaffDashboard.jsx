@@ -7,14 +7,9 @@ import {
   Barcode,
   PlusCircle,
   FileText,
-  CheckCircle2,
-  TrendingUp,
-  TrendingDown,
-  Users,
   CalendarDays,
   ArrowUpRight,
-  MoreHorizontal,
-  BookMarked
+  Users
 } from 'lucide-react';
 import { useLibrary } from '../../context/LibraryContext';
 
@@ -29,7 +24,9 @@ export default function StaffDashboard() {
     members,
     issueLoan,
     returnLoan,
-    setActiveTab
+    setActiveTab,
+    lang,
+    t
   } = useLibrary();
 
   // Quick circulation states
@@ -61,34 +58,34 @@ export default function StaffDashboard() {
 
   const kpiCards = [
     {
-      label: 'عناوين الفهرس',
+      label: t('staffDashboard.kpiCatalog'),
       value: totalBooks,
-      sub: `${totalCopies} نسخ مادية`,
+      sub: t('staffDashboard.kpiCopies', { n: totalCopies }),
       icon: BookOpen,
       trend: '+2',
       trendUp: true,
       color: 'primary'
     },
     {
-      label: 'الإعارات الجارية',
+      label: t('staffDashboard.kpiLoans'),
       value: activeLoans.length,
-      sub: `${availableCopies} نسخ متاحة`,
+      sub: t('staffDashboard.kpiAvailable', { n: availableCopies }),
       icon: ArrowRightLeft,
       trend: null,
       color: 'borrowed'
     },
     {
-      label: 'الحجوزات النشطة',
+      label: t('staffDashboard.kpiReservations'),
       value: activeReservations.length,
-      sub: 'في طوابير الانتظار',
+      sub: t('staffDashboard.kpiWaiting'),
       icon: Clock,
       trend: null,
       color: 'reserved'
     },
     {
-      label: 'المتأخرات',
+      label: t('staffDashboard.kpiOverdues'),
       value: overdueLoans.length,
-      sub: `${unpaidFinesTotal} ر.س غرامات`,
+      sub: t('staffDashboard.kpiFines', { n: unpaidFinesTotal }),
       icon: AlertTriangle,
       trend: overdueLoans.length > 0 ? `${overdueLoans.length}` : '0',
       trendUp: false,
@@ -122,110 +119,127 @@ export default function StaffDashboard() {
     return styles[color] || styles.primary;
   };
 
-  // Weekly mini chart data (simulated)
-  const weekDays = ['سب', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع'];
-  const weekData = [3, 7, 5, 8, 4, 6, 2];
+  const weekDays = lang === 'en'
+    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    : ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  const weekData = [12, 18, 15, 24, 20, 8, 14];
   const maxWeek = Math.max(...weekData);
 
   return (
-    <div className="dashboard-layout">
-      {/* KPI Cards */}
+    <div style={{ maxWidth: '1360px', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* 4 Pastel Modern KPI Cards */}
       <div className="kpi-grid">
-        {kpiCards.map((kpi, i) => {
-          const s = getKPIStyles(kpi.color);
+        {kpiCards.map((kpi, idx) => {
+          const style = getKPIStyles(kpi.color);
           const Icon = kpi.icon;
+
           return (
-            <div className="kpi-card" key={i}>
-              <div className="kpi-card-header">
-                <div className="kpi-icon" style={{ backgroundColor: s.iconBg, color: s.iconColor }}>
-                  <Icon size={20} />
+            <div key={idx} className={`kpi-card kpi-${kpi.color}`}>
+              <div className="kpi-header">
+                <span className="kpi-label">{kpi.label}</span>
+                <div className="kpi-icon-badge" style={{ backgroundColor: style.iconBg, color: style.iconColor }}>
+                  <Icon size={18} />
                 </div>
+              </div>
+
+              <div className="kpi-body">
+                <span className="kpi-value" style={{ color: style.valueColor }}>{kpi.value}</span>
                 {kpi.trend && (
                   <span className={`kpi-trend ${kpi.trendUp ? 'up' : 'down'}`}>
-                    {kpi.trendUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                     {kpi.trend}
                   </span>
                 )}
               </div>
-              <div className="kpi-card-body">
-                <span className="kpi-label">{kpi.label}</span>
-                <h2 className="kpi-value" style={{ color: s.valueColor }}>{kpi.value}</h2>
-                <span className="kpi-sub">{kpi.sub}</span>
-              </div>
+
+              <span className="kpi-sub">{kpi.sub}</span>
             </div>
           );
         })}
       </div>
 
-      {/* Main Grid: Quick Circulation + Activity Queue + Mini Stats */}
-      <div className="dashboard-grid">
-        {/* Quick Circulation Station */}
-        <div className="dashboard-card">
+      {/* Main Grid: Quick Desk + Activity Queue + Weekly Mini Chart */}
+      <div className="dashboard-main-grid">
+        {/* Quick Desk Action Panel */}
+        <div className="dashboard-card quick-desk-card">
           <div className="dashboard-card-header">
             <div className="dashboard-card-title">
               <Barcode size={18} color="var(--color-primary)" />
-              <h3>محطة التداول السريع</h3>
+              <h3>{t('staffDashboard.quickTitle')}</h3>
             </div>
-            <div className="mode-switcher">
+            <div className="quick-mode-pills">
               <button
                 type="button"
-                className={`mode-btn ${quickMode === 'issue' ? 'active' : ''}`}
+                className={`quick-mode-pill ${quickMode === 'issue' ? 'active' : ''}`}
                 onClick={() => setQuickMode('issue')}
               >
-                تسجيل إعارة
+                {t('staffDashboard.issueMode')}
               </button>
               <button
                 type="button"
-                className={`mode-btn ${quickMode === 'return' ? 'active' : ''}`}
+                className={`quick-mode-pill ${quickMode === 'return' ? 'active' : ''}`}
                 onClick={() => setQuickMode('return')}
               >
-                تسجيل إرجاع
+                {t('staffDashboard.returnMode')}
               </button>
             </div>
           </div>
 
           <form onSubmit={handleQuickSubmit} className="quick-form">
-            <div className="form-group" style={{ margin: 0 }}>
-              <label className="form-label">
-                باركود النسخة المادية
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>مثال: BC-101-01</span>
-              </label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="أدخل أو امسح الباركود (BC-xxx-xx)..."
-                value={barcodeInput}
-                onChange={(e) => setBarcodeInput(e.target.value)}
-                required
-              />
+            <div className="quick-form-fields">
+              <div className="quick-input-group">
+                <label className="quick-label">
+                  {quickMode === 'issue'
+                    ? (lang === 'en' ? 'Item Barcode to Issue:' : 'باركود النسخة المراد إعارتها:')
+                    : (lang === 'en' ? 'Returned Item Barcode:' : 'باركود النسخة المسترجعة:')}
+                </label>
+                <div className="quick-input-wrapper">
+                  <Barcode size={16} className="quick-input-icon" />
+                  <input
+                    type="text"
+                    className="form-input quick-input"
+                    value={barcodeInput}
+                    onChange={(e) => setBarcodeInput(e.target.value)}
+                    placeholder={t('staffDashboard.barcodePlaceholder')}
+                  />
+                </div>
+              </div>
+
+              {quickMode === 'issue' && (
+                <div className="quick-input-group">
+                  <label className="quick-label">
+                    {lang === 'en' ? 'Borrower Member Code:' : 'رقم العضوية للمستعير:'}
+                  </label>
+                  <div className="quick-input-wrapper">
+                    <Users size={16} className="quick-input-icon" />
+                    <input
+                      type="text"
+                      className="form-input quick-input"
+                      value={memberCodeInput}
+                      onChange={(e) => setMemberCodeInput(e.target.value)}
+                      placeholder={t('staffDashboard.memberCodePlaceholder')}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
-            {quickMode === 'issue' && (
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">
-                  كود العضو المستعير
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>مثال: MEM-2026-0042</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="أدخل كود العضو (MEM-xxxx-xxxx)..."
-                  value={memberCodeInput}
-                  onChange={(e) => setMemberCodeInput(e.target.value)}
-                  required
-                />
-              </div>
-            )}
+            <div className="quick-form-actions">
+              <button type="submit" className="btn btn-primary" style={{ padding: '9px 20px' }}>
+                {quickMode === 'issue' ? (
+                  <>
+                    <ArrowRightLeft size={16} />
+                    <span>{t('staffDashboard.submitIssue')}</span>
+                  </>
+                ) : (
+                  <>
+                    <BookOpen size={16} />
+                    <span>{t('staffDashboard.submitReturn')}</span>
+                  </>
+                )}
+              </button>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-              <CheckCircle2 size={16} />
-              <span>{quickMode === 'issue' ? 'تأكيد الإعارة' : 'تأكيد الإرجاع'}</span>
-            </button>
-
-            {/* Quick presets */}
-            <div className="quick-presets">
-              <span className="quick-presets-label">أكواد تجريبية:</span>
-              <div className="quick-presets-btns">
+              <div className="quick-presets">
+                <span className="quick-presets-label">{lang === 'en' ? 'Quick Presets:' : 'نماذج سريعة:'}</span>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
@@ -235,7 +249,7 @@ export default function StaffDashboard() {
                     setQuickMode('issue');
                   }}
                 >
-                  إعارة: BC-101-01
+                  {lang === 'en' ? 'Issue: BC-101-01' : 'إعارة: BC-101-01'}
                 </button>
                 <button
                   type="button"
@@ -245,7 +259,7 @@ export default function StaffDashboard() {
                     setQuickMode('return');
                   }}
                 >
-                  إرجاع: BC-404-02
+                  {lang === 'en' ? 'Return: BC-404-02' : 'إرجاع: BC-404-02'}
                 </button>
               </div>
             </div>
@@ -257,14 +271,14 @@ export default function StaffDashboard() {
           <div className="dashboard-card-header">
             <div className="dashboard-card-title">
               <FileText size={18} color="var(--color-primary)" />
-              <h3>سجل النشاط الأخير</h3>
+              <h3>{t('staffDashboard.recentActivity')}</h3>
             </div>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => setActiveTab('audit')}
             >
-              عرض الكل
+              {lang === 'en' ? 'View All' : 'عرض الكل'}
               <ArrowUpRight size={12} />
             </button>
           </div>
@@ -275,16 +289,23 @@ export default function StaffDashboard() {
                 <div className="activity-dot" />
                 <div className="activity-content">
                   <div className="activity-header">
-                    <span className="activity-action">{log.action}</span>
+                    <span className="activity-action">
+                      {lang === 'en' ? (log.action_en || log.action) : log.action}
+                    </span>
                     <span className="activity-time">
-                      {new Date(log.created_at).toLocaleTimeString('ar-EG', {
+                      {new Date(log.created_at).toLocaleTimeString(lang === 'ar' ? 'ar-EG' : 'en-US', {
                         hour: '2-digit',
                         minute: '2-digit'
                       })}
                     </span>
                   </div>
-                  <p className="activity-details">{log.details}</p>
-                  <span className="activity-actor">بواسطة: {log.actor}</span>
+                  <p className="activity-details">
+                    {lang === 'en' ? (log.details_en || log.details) : log.details}
+                  </p>
+                  <span className="activity-actor">
+                    {lang === 'en' ? 'By: ' : 'بواسطة: '}
+                    {lang === 'en' ? (log.actor_en || log.actor) : log.actor}
+                  </span>
                 </div>
               </div>
             ))}
@@ -298,7 +319,7 @@ export default function StaffDashboard() {
             <div className="dashboard-card-header">
               <div className="dashboard-card-title">
                 <CalendarDays size={16} color="var(--color-primary)" />
-                <h3 style={{ fontSize: '0.92rem' }}>حركة الأسبوع</h3>
+                <h3 style={{ fontSize: '0.92rem' }}>{t('staffDashboard.weeklyTraffic')}</h3>
               </div>
             </div>
             <div className="mini-chart">
@@ -324,30 +345,30 @@ export default function StaffDashboard() {
             <div className="dashboard-card-header">
               <div className="dashboard-card-title">
                 <Users size={16} color="var(--color-primary)" />
-                <h3 style={{ fontSize: '0.92rem' }}>إحصائيات سريعة</h3>
+                <h3 style={{ fontSize: '0.92rem' }}>{t('staffDashboard.inventorySnapshot')}</h3>
               </div>
             </div>
             <div className="quick-stats-list">
               <div className="quick-stat-row">
-                <span className="quick-stat-label">إجمالي الأعضاء</span>
+                <span className="quick-stat-label">{t('staffDashboard.registeredMembers')}</span>
                 <span className="quick-stat-value">{members.length}</span>
               </div>
               <div className="quick-stat-row">
-                <span className="quick-stat-label">نسبة الإشغال</span>
+                <span className="quick-stat-label">{t('staffDashboard.utilizationRate')}</span>
                 <span className="quick-stat-value" style={{ color: 'var(--status-borrowed-text)' }}>
                   {totalCopies > 0 ? Math.round((activeLoans.length / totalCopies) * 100) : 0}%
                 </span>
               </div>
               <div className="quick-stat-row">
-                <span className="quick-stat-label">متوسط الإعارات/عضو</span>
+                <span className="quick-stat-label">{lang === 'en' ? 'Avg Loans/Member' : 'متوسط الإعارات/عضو'}</span>
                 <span className="quick-stat-value">
                   {members.length > 0 ? (activeLoans.length / members.length).toFixed(1) : 0}
                 </span>
               </div>
               <div className="quick-stat-row">
-                <span className="quick-stat-label">إجمالي الغرامات</span>
+                <span className="quick-stat-label">{lang === 'en' ? 'Unpaid Fines Total' : 'إجمالي الغرامات'}</span>
                 <span className="quick-stat-value" style={{ color: 'var(--status-overdue-text)' }}>
-                  {unpaidFinesTotal} ر.س
+                  {unpaidFinesTotal} {lang === 'en' ? 'SAR' : 'ر.س'}
                 </span>
               </div>
             </div>
@@ -363,7 +384,7 @@ export default function StaffDashboard() {
                 onClick={() => setActiveTab('circulation')}
               >
                 <ArrowRightLeft size={15} />
-                <span>مكتب التداول</span>
+                <span>{lang === 'en' ? 'Circulation Desk' : 'مكتب التداول'}</span>
               </button>
               <button
                 type="button"
@@ -372,7 +393,7 @@ export default function StaffDashboard() {
                 onClick={() => setActiveTab('catalog-mgmt')}
               >
                 <PlusCircle size={15} />
-                <span>إضافة كتاب</span>
+                <span>{lang === 'en' ? 'Add Book' : 'إضافة كتاب'}</span>
               </button>
             </div>
           </div>

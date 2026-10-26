@@ -8,9 +8,11 @@ import {
 } from 'lucide-react';
 import { useLibrary } from '../../context/LibraryContext';
 import StatusBadge from '../../components/StatusBadge';
+import { getBookTitle, getBookAuthor, getBookCategory, getBookShelf } from '../../data/mockData';
+import { getCategoryLabel } from '../../data/translations';
 
 export default function CatalogManagementPage() {
-  const { books, bookCopies, addBook, openBookModal } = useLibrary();
+  const { books, bookCopies, addBook, openBookModal, lang } = useLibrary();
 
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -31,9 +33,11 @@ export default function CatalogManagementPage() {
 
   const filteredBooks = books.filter(
     (b) =>
-      b.title.toLowerCase().includes(search.toLowerCase()) ||
-      b.author.toLowerCase().includes(search.toLowerCase()) ||
-      b.isbn.toLowerCase().includes(search.toLowerCase())
+      (b.title && b.title.toLowerCase().includes(search.toLowerCase())) ||
+      (b.title_en && b.title_en.toLowerCase().includes(search.toLowerCase())) ||
+      (b.author && b.author.toLowerCase().includes(search.toLowerCase())) ||
+      (b.author_en && b.author_en.toLowerCase().includes(search.toLowerCase())) ||
+      (b.isbn && b.isbn.toLowerCase().includes(search.toLowerCase()))
   );
 
   const handleAddSubmit = (e) => {
@@ -55,16 +59,20 @@ export default function CatalogManagementPage() {
     });
   };
 
+  const isRTL = lang === 'ar';
+
   return (
     <div style={{ maxWidth: '1360px', width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
       {/* Title & Add Button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 2px 0' }}>
-            إدارة الفهرس والنسخ المادية
+            {lang === 'en' ? 'Catalog & Physical Copies Management' : 'إدارة الفهرس والنسخ المادية'}
           </h1>
           <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            إضافة العناوين الببليوغرافية الجديدة، وإدارة النسخ والباركودات وحالات الصيانة ومواقع الرفوف.
+            {lang === 'en'
+              ? 'Add new bibliographic titles, manage physical copies, barcodes, maintenance, and shelf locations.'
+              : 'إضافة العناوين الببليوغرافية الجديدة، وإدارة النسخ والباركودات وحالات الصيانة ومواقع الرفوف.'}
           </p>
         </div>
 
@@ -74,7 +82,7 @@ export default function CatalogManagementPage() {
           onClick={() => setShowAddModal(true)}
         >
           <Plus size={16} />
-          <span>إضافة عنوان جديد للفهرس</span>
+          <span>{lang === 'en' ? 'Add New Title to Catalog' : 'إضافة عنوان جديد للفهرس'}</span>
         </button>
       </div>
 
@@ -83,15 +91,25 @@ export default function CatalogManagementPage() {
         <div style={{ position: 'relative' }}>
           <Search
             size={18}
-            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: '12px', color: 'var(--text-muted)' }}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              right: isRTL ? '12px' : 'auto',
+              left: isRTL ? 'auto' : '12px',
+              color: 'var(--text-muted)'
+            }}
           />
           <input
             type="text"
             className="form-input"
-            placeholder="بحث بالعنوان، المؤلف، أو رقم الـ ISBN..."
+            placeholder={lang === 'en' ? 'Search by title, author, or ISBN...' : 'بحث بالعنوان، المؤلف، أو رقم الـ ISBN...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ paddingRight: '38px' }}
+            style={{
+              paddingRight: isRTL ? '38px' : '14px',
+              paddingLeft: isRTL ? '14px' : '38px'
+            }}
           />
         </div>
       </div>
@@ -102,18 +120,22 @@ export default function CatalogManagementPage() {
           <table className="table">
             <thead>
               <tr>
-                <th>الكتاب</th>
-                <th>التصنيف</th>
-                <th>موقع الرف</th>
-                <th>إجمالي النسخ</th>
-                <th>النسخ المتاحة</th>
-                <th>الباركودات وحالاتها</th>
-                <th>إجراءات</th>
+                <th>{lang === 'en' ? 'Book' : 'الكتاب'}</th>
+                <th>{lang === 'en' ? 'Category' : 'التصنيف'}</th>
+                <th>{lang === 'en' ? 'Shelf Location' : 'موقع الرف'}</th>
+                <th>{lang === 'en' ? 'Total Copies' : 'إجمالي النسخ'}</th>
+                <th>{lang === 'en' ? 'Available' : 'النسخ المتاحة'}</th>
+                <th>{lang === 'en' ? 'Item Barcodes & Status' : 'الباركودات وحالاتها'}</th>
+                <th>{lang === 'en' ? 'Actions' : 'إجراءات'}</th>
               </tr>
             </thead>
             <tbody>
               {filteredBooks.map((book) => {
                 const copies = bookCopies.filter((c) => c.book_id === book.id);
+                const title = getBookTitle(book, lang);
+                const author = getBookAuthor(book, lang);
+                const category = getBookCategory(book, lang);
+                const shelf = getBookShelf(book, lang);
 
                 return (
                   <tr key={book.id}>
@@ -121,30 +143,30 @@ export default function CatalogManagementPage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <img
                           src={book.cover_image}
-                          alt={book.title}
+                          alt={title}
                           style={{ width: '40px', height: '54px', objectFit: 'cover', borderRadius: 'var(--radius-xs)' }}
                         />
                         <div>
-                          <strong style={{ fontSize: '0.92rem', display: 'block' }}>{book.title}</strong>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{book.author}</span>
+                          <strong style={{ fontSize: '0.92rem', display: 'block' }}>{title}</strong>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{author}</span>
                           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>ISBN: {book.isbn}</span>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <span className="badge badge-neutral">{book.category}</span>
+                      <span className="badge badge-neutral">{category}</span>
                     </td>
                     <td>
                       <span style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <MapPin size={12} color="var(--color-primary)" />
-                        {book.shelf_location}
+                        {shelf}
                       </span>
                     </td>
                     <td style={{ fontWeight: 700 }}>{book.total_copies}</td>
                     <td>
                       <StatusBadge
                         status={book.available_copies > 0 ? 'available' : 'borrowed'}
-                        text={`${book.available_copies} متاح`}
+                        text={book.available_copies > 0 ? (lang === 'en' ? `${book.available_copies} Available` : `${book.available_copies} متاح`) : (lang === 'en' ? 'Checked Out' : 'مُعار بالكامل')}
                         size="sm"
                       />
                     </td>
@@ -176,7 +198,7 @@ export default function CatalogManagementPage() {
                         className="btn btn-secondary btn-sm"
                         onClick={() => openBookModal(book)}
                       >
-                        عرض وإدارة
+                        {lang === 'en' ? 'Manage' : 'عرض وإدارة'}
                       </button>
                     </td>
                   </tr>
@@ -202,7 +224,7 @@ export default function CatalogManagementPage() {
               }}
             >
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>
-                إضافة عنوان ببليوغرافي جديد
+                {lang === 'en' ? 'Add New Bibliographic Title' : 'إضافة عنوان ببليوغرافي جديد'}
               </h3>
               <button
                 type="button"
@@ -215,11 +237,11 @@ export default function CatalogManagementPage() {
 
             <form onSubmit={handleAddSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">عنوان الكتاب:</label>
+                <label className="form-label">{lang === 'en' ? 'Book Title:' : 'عنوان الكتاب:'}</label>
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="مثال: أسس تعلم الآلة والذكاء الاصطناعي"
+                  placeholder={lang === 'en' ? 'e.g. Modern Operating Systems' : 'مثال: أسس تعلم الآلة والذكاء الاصطناعي'}
                   value={newBook.title}
                   onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
                   required
@@ -228,18 +250,18 @@ export default function CatalogManagementPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">المؤلف:</label>
+                  <label className="form-label">{lang === 'en' ? 'Author:' : 'المؤلف:'}</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="اسم المؤلف أو المترجم"
+                    placeholder={lang === 'en' ? 'Author or translator name' : 'اسم المؤلف أو المترجم'}
                     value={newBook.author}
                     onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
                     required
                   />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">رقم ISBN الدولي:</label>
+                  <label className="form-label">{lang === 'en' ? 'ISBN Number:' : 'رقم ISBN الدولي:'}</label>
                   <input
                     type="text"
                     className="form-input"
@@ -253,21 +275,21 @@ export default function CatalogManagementPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">التصنيف:</label>
+                  <label className="form-label">{lang === 'en' ? 'Category:' : 'التصنيف:'}</label>
                   <select
                     className="form-select"
                     value={newBook.category}
                     onChange={(e) => setNewBook({ ...newBook, category: e.target.value })}
                   >
-                    <option value="ذكاء اصطناعي وتكنولوجيا">ذكاء اصطناعي وتكنولوجيا</option>
-                    <option value="روايات وأدب">روايات وأدب</option>
-                    <option value="تاريخ وفلسفة">تاريخ وفلسفة</option>
-                    <option value="غموض وبوليسي">غموض وبوليسي</option>
-                    <option value="إدارة وتطوير الذات">إدارة وتطوير الذات</option>
+                    <option value="ذكاء اصطناعي وتكنولوجيا">{getCategoryLabel('ذكاء اصطناعي وتكنولوجيا', lang)}</option>
+                    <option value="روايات وأدب">{getCategoryLabel('روايات وأدب', lang)}</option>
+                    <option value="تاريخ وفلسفة">{getCategoryLabel('تاريخ وفلسفة', lang)}</option>
+                    <option value="غموض وبوليسي">{getCategoryLabel('غموض وبوليسي', lang)}</option>
+                    <option value="إدارة وتطوير الذات">{getCategoryLabel('إدارة وتطوير الذات', lang)}</option>
                   </select>
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">سنة النشر:</label>
+                  <label className="form-label">{lang === 'en' ? 'Publication Year:' : 'سنة النشر:'}</label>
                   <input
                     type="number"
                     className="form-input"
@@ -279,7 +301,7 @@ export default function CatalogManagementPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">موقع الرف الافتراضي:</label>
+                  <label className="form-label">{lang === 'en' ? 'Default Shelf Location:' : 'موقع الرف الافتراضي:'}</label>
                   <input
                     type="text"
                     className="form-input"
@@ -288,7 +310,7 @@ export default function CatalogManagementPage() {
                   />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">عدد النسخ المادية المبدئية:</label>
+                  <label className="form-label">{lang === 'en' ? 'Initial Physical Copies:' : 'عدد النسخ المادية المبدئية:'}</label>
                   <input
                     type="number"
                     min="1"
@@ -301,11 +323,11 @@ export default function CatalogManagementPage() {
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">ملخص ومقدمة الكتاب:</label>
+                <label className="form-label">{lang === 'en' ? 'Description & Abstract:' : 'ملخص ومقدمة الكتاب:'}</label>
                 <textarea
                   className="form-textarea"
                   rows="3"
-                  placeholder="وصف مختصر لمحتوى الكتاب..."
+                  placeholder={lang === 'en' ? 'Brief summary of the book content...' : 'وصف مختصر لمحتوى الكتاب...'}
                   value={newBook.description}
                   onChange={(e) => setNewBook({ ...newBook, description: e.target.value })}
                 />
@@ -317,11 +339,11 @@ export default function CatalogManagementPage() {
                   className="btn btn-secondary"
                   onClick={() => setShowAddModal(false)}
                 >
-                  إلغاء
+                  {lang === 'en' ? 'Cancel' : 'إلغاء'}
                 </button>
                 <button type="submit" className="btn btn-primary">
                   <CheckCircle2 size={16} />
-                  <span>حفظ وإصدار الباركودات</span>
+                  <span>{lang === 'en' ? 'Save & Issue Barcodes' : 'حفظ وإصدار الباركودات'}</span>
                 </button>
               </div>
             </form>

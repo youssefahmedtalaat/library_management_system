@@ -1,66 +1,74 @@
 import React from 'react';
 import { CheckCircle2, Clock, BookOpen, AlertCircle, Wrench, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { useLibrary } from '../context/LibraryContext';
 
 export default function StatusBadge({ status, text, size = 'md' }) {
+  const { lang } = useLibrary();
   let badgeClass = 'badge-neutral';
   let Icon = null;
-  let label = text;
+
+  const defaultLabels = {
+    available: lang === 'en' ? 'Available' : 'متاح',
+    reserved: lang === 'en' ? 'Reserved' : 'محجوز',
+    due_soon: lang === 'en' ? 'Due Soon' : 'قريب الاستحقاق',
+    borrowed: lang === 'en' ? 'Borrowed' : 'مُعار',
+    issued: lang === 'en' ? 'Issued' : 'مُعار',
+    overdue: lang === 'en' ? 'Overdue' : 'متأخر',
+    maintenance: lang === 'en' ? 'Maintenance' : 'صيانة وتجليد',
+    active: lang === 'en' ? 'Active' : 'نشط',
+    blocked: lang === 'en' ? 'Blocked' : 'موقوف',
+    paid: lang === 'en' ? 'Paid' : 'مسدد',
+    unpaid: lang === 'en' ? 'Unpaid' : 'غير مسدد',
+  };
 
   switch (status) {
     case 'available':
       badgeClass = 'badge-available';
       Icon = CheckCircle2;
-      label = label || 'متاح (Available)';
       break;
     case 'reserved':
-      badgeClass = 'badge-reserved';
-      Icon = Clock;
-      label = label || 'محجوز (Reserved)';
-      break;
     case 'due_soon':
       badgeClass = 'badge-reserved';
       Icon = Clock;
-      label = label || 'قريب الاستحقاق (Due Soon)';
       break;
     case 'borrowed':
     case 'issued':
       badgeClass = 'badge-borrowed';
       Icon = BookOpen;
-      label = label || 'مُعار (Borrowed)';
       break;
     case 'overdue':
       badgeClass = 'badge-overdue';
       Icon = AlertCircle;
-      label = label || 'متأخر (Overdue)';
       break;
     case 'maintenance':
       badgeClass = 'badge-neutral';
       Icon = Wrench;
-      label = label || 'صيانة (Maintenance)';
       break;
     case 'active':
       badgeClass = 'badge-available';
       Icon = ShieldCheck;
-      label = label || 'نشط (Active)';
       break;
     case 'blocked':
       badgeClass = 'badge-overdue';
       Icon = ShieldAlert;
-      label = label || 'موقوف (Blocked)';
       break;
     case 'paid':
       badgeClass = 'badge-available';
       Icon = CheckCircle2;
-      label = label || 'مسدد (Paid)';
       break;
     case 'unpaid':
       badgeClass = 'badge-overdue';
       Icon = AlertCircle;
-      label = label || 'غير مسدد (Unpaid)';
       break;
     default:
       badgeClass = 'badge-neutral';
-      label = label || status;
+  }
+
+  let label = text;
+  if (typeof text === 'object' && text !== null) {
+    label = text[lang] || text.ar || text.en;
+  } else if (!text) {
+    label = defaultLabels[status] || status;
   }
 
   const sizeClass = size === 'sm' ? 'btn-sm' : '';

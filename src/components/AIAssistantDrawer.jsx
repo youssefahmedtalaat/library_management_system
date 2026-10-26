@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, BookOpen, BookmarkCheck, Bot, ShieldCheck } from 'lucide-react';
 import { useLibrary } from '../context/LibraryContext';
 import StatusBadge from './StatusBadge';
+import { getBookTitle, getBookAuthor, getBookShelf } from '../data/mockData';
 
 export default function AIAssistantDrawer() {
   const {
@@ -12,7 +13,8 @@ export default function AIAssistantDrawer() {
     sendAIMessage,
     openBookModal,
     reserveBook,
-    lang
+    lang,
+    t
   } = useLibrary();
 
   const [input, setInput] = useState('');
@@ -103,7 +105,7 @@ export default function AIAssistantDrawer() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-ai-accent)', margin: 0 }}>
-                  أمين المكتبة الذكي
+                  {t('ai.drawerTitle')}
                 </h3>
                 <span
                   style={{
@@ -119,7 +121,7 @@ export default function AIAssistantDrawer() {
                 </span>
               </div>
               <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: 0 }}>
-                اكتشاف عناوين الفهرس وشرح السياسات المعتمدة
+                {t('ai.drawerSubtitle')}
               </p>
             </div>
           </div>
@@ -128,7 +130,7 @@ export default function AIAssistantDrawer() {
             type="button"
             className="btn btn-secondary btn-icon"
             onClick={closeAIDrawer}
-            aria-label="إغلاق الدرج"
+            aria-label={t('modal.close')}
           >
             <X size={18} />
           </button>
@@ -148,7 +150,7 @@ export default function AIAssistantDrawer() {
           }}
         >
           <ShieldCheck size={14} color="var(--color-ai-accent)" />
-          <span>المساعد للاسترشاد والتوصية؛ العمليات الفعلية كالإعارة تدار عبر النظام.</span>
+          <span>{t('ai.disclaimer')}</span>
         </div>
 
         {/* Messages Stream */}
@@ -193,7 +195,7 @@ export default function AIAssistantDrawer() {
                   {!isUser && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px', color: 'var(--color-ai-accent)', fontWeight: 700, fontSize: '0.78rem' }}>
                       <Bot size={14} />
-                      <span>توصية الفهرس الذكي:</span>
+                      <span>{t('ai.recommendationBadge')}</span>
                     </div>
                   )}
                   <div>{msg.text}</div>
@@ -202,83 +204,91 @@ export default function AIAssistantDrawer() {
                 {/* If assistant returned matched books */}
                 {!isUser && msg.matchedBooks && msg.matchedBooks.length > 0 && (
                   <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-                    {msg.matchedBooks.map((book) => (
-                      <div
-                        key={book.id}
-                        className="card"
-                        style={{
-                          padding: '10px 12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          backgroundColor: 'var(--bg-surface)',
-                          border: '1px solid var(--border-subtle)'
-                        }}
-                      >
-                        <img
-                          src={book.cover_image}
-                          alt={book.title}
+                    {msg.matchedBooks.map((book) => {
+                      const bookTitle = getBookTitle(book, lang);
+                      const bookAuthor = getBookAuthor(book, lang);
+                      const bookShelf = getBookShelf(book, lang);
+
+                      return (
+                        <div
+                          key={book.id}
+                          className="card"
                           style={{
-                            width: '45px',
-                            height: '60px',
-                            objectFit: 'cover',
-                            borderRadius: 'var(--radius-sm)'
+                            padding: '10px 12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            backgroundColor: 'var(--bg-surface)',
+                            border: '1px solid var(--border-subtle)'
                           }}
-                        />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <h4
+                        >
+                          <img
+                            src={book.cover_image}
+                            alt={bookTitle}
                             style={{
-                              fontSize: '0.85rem',
-                              fontWeight: 700,
-                              margin: '0 0 2px 0',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              color: 'var(--text-primary)'
+                              width: '45px',
+                              height: '60px',
+                              objectFit: 'cover',
+                              borderRadius: 'var(--radius-sm)'
                             }}
-                          >
-                            {book.title}
-                          </h4>
-                          <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', margin: '0 0 4px 0' }}>
-                            {book.author}
-                          </p>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <StatusBadge
-                              status={book.available_copies > 0 ? 'available' : 'borrowed'}
-                              text={`${book.available_copies} متاح`}
-                              size="sm"
-                            />
-                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                              {book.shelf_location}
-                            </span>
+                          />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <h4
+                              style={{
+                                fontSize: '0.85rem',
+                                fontWeight: 700,
+                                margin: '0 0 2px 0',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                color: 'var(--text-primary)'
+                              }}
+                            >
+                              {bookTitle}
+                            </h4>
+                            <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', margin: '0 0 4px 0' }}>
+                              {bookAuthor}
+                            </p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <StatusBadge
+                                status={book.available_copies > 0 ? 'available' : 'borrowed'}
+                                text={book.available_copies > 0
+                                  ? (lang === 'en' ? `${book.available_copies} Available` : `${book.available_copies} متاح`)
+                                  : (lang === 'en' ? 'Checked Out' : 'مُعار')}
+                                size="sm"
+                              />
+                              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                                {bookShelf}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              style={{ padding: '4px 8px', fontSize: '0.74rem' }}
+                              onClick={() => {
+                                openBookModal(book);
+                                closeAIDrawer();
+                              }}
+                            >
+                              <BookOpen size={12} />
+                              <span>{t('ai.viewBook')}</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-primary btn-sm"
+                              style={{ padding: '4px 8px', fontSize: '0.74rem' }}
+                              onClick={() => reserveBook(book.id)}
+                            >
+                              <BookmarkCheck size={12} />
+                              <span>{t('ai.reserveBook')}</span>
+                            </button>
                           </div>
                         </div>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <button
-                            type="button"
-                            className="btn btn-secondary btn-sm"
-                            style={{ padding: '4px 8px', fontSize: '0.74rem' }}
-                            onClick={() => {
-                              openBookModal(book);
-                              closeAIDrawer();
-                            }}
-                          >
-                            <BookOpen size={12} />
-                            <span>عرض</span>
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-primary btn-sm"
-                            style={{ padding: '4px 8px', fontSize: '0.74rem' }}
-                            onClick={() => reserveBook(book.id)}
-                          >
-                            <BookmarkCheck size={12} />
-                            <span>حجز</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
 
@@ -317,7 +327,7 @@ export default function AIAssistantDrawer() {
           {isAILoading && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', backgroundColor: 'var(--color-ai-surface)', borderRadius: 'var(--radius-lg)', color: 'var(--color-ai-accent)', fontSize: '0.85rem' }}>
               <Sparkles size={16} className="pulse-amber" />
-              <span>جاري استرجاع الكتب من الفهرس وصياغة الشرح...</span>
+              <span>{t('ai.thinking')}</span>
             </div>
           )}
 
@@ -341,7 +351,7 @@ export default function AIAssistantDrawer() {
             className="form-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="اسأل عن عنوان، فكرة، أو سياسة الإعارة..."
+            placeholder={t('ai.inputPlaceholder')}
             style={{ flex: 1 }}
             disabled={isAILoading}
           />
@@ -350,7 +360,7 @@ export default function AIAssistantDrawer() {
             className="btn btn-ai"
             style={{ width: '42px', height: '42px', padding: 0 }}
             disabled={!input.trim() || isAILoading}
-            aria-label="إرسال السؤال"
+            aria-label={t('ai.sendBtn')}
           >
             <Send size={16} />
           </button>

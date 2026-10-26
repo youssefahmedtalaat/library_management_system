@@ -80,15 +80,25 @@ export default function Sidebar() {
   const navItems = currentRole === 'member' ? memberNavItems : currentRole === 'staff' ? staffNavItems : adminNavItems;
 
   const getUserName = () => {
-    if (currentRole === 'member') return currentMember.full_name.split(' ').slice(0, 2).join(' ');
-    if (currentRole === 'staff') return 'سليمان المنصور';
-    return 'د. هشام الراشد';
+    if (currentRole === 'member') {
+      return lang === 'en'
+        ? (currentMember.full_name_en ? currentMember.full_name_en.split(' ').slice(0, 2).join(' ') : 'Ahmed Mahmoud')
+        : currentMember.full_name.split(' ').slice(0, 2).join(' ');
+    }
+    if (currentRole === 'staff') return lang === 'en' ? 'Sulaiman Al-Mansoor' : 'سليمان المنصور';
+    return lang === 'en' ? 'Dr. Hesham Al-Rashed' : 'د. هشام الراشد';
   };
 
   const getUserSubtitle = () => {
     if (currentRole === 'member') return currentMember.member_code;
-    if (currentRole === 'staff') return 'أمين إعارة';
-    return 'مدير النظام';
+    if (currentRole === 'staff') return lang === 'en' ? 'Circulation Librarian' : 'أمين إعارة';
+    return lang === 'en' ? 'System Admin' : 'مدير النظام';
+  };
+
+  const getUserAvatarLetter = () => {
+    if (currentRole === 'member') return lang === 'en' ? 'A' : 'أ';
+    if (currentRole === 'staff') return lang === 'en' ? 'S' : 'س';
+    return lang === 'en' ? 'H' : 'هـ';
   };
 
   return (
@@ -101,7 +111,7 @@ export default function Sidebar() {
           </div>
           {!isCollapsed && (
             <div className="sidebar-logo-text">
-              <span className="sidebar-logo-title">المكتبة الذكية</span>
+              <span className="sidebar-logo-title">{lang === 'en' ? 'Smart Library' : 'المكتبة الذكية'}</span>
               <span className="sidebar-logo-version">LMS 2026</span>
             </div>
           )}
@@ -209,20 +219,20 @@ export default function Sidebar() {
           <button
             className="sidebar-action-btn"
             onClick={toggleTheme}
-            title={theme === 'light' ? 'الوضع الداكن' : 'الوضع الفاتح'}
+            title={theme === 'light' ? (lang === 'en' ? 'Dark Mode' : 'الوضع الداكن') : (lang === 'en' ? 'Light Mode' : 'الوضع الفاتح')}
           >
             {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
           </button>
           <button
             className="sidebar-action-btn"
             onClick={toggleLang}
-            title="تبديل اللغة"
+            title={lang === 'en' ? 'التحويل للعربية' : 'Switch to English'}
           >
             <Globe size={17} />
           </button>
           <button
             className="sidebar-action-btn"
-            title="المساعدة"
+            title={lang === 'en' ? 'Help & Documentation' : 'المساعدة'}
           >
             <HelpCircle size={17} />
           </button>
@@ -231,7 +241,7 @@ export default function Sidebar() {
         {/* User Card */}
         <div className="sidebar-user-card">
           <div className="sidebar-user-avatar">
-            {currentRole === 'member' ? 'أ' : currentRole === 'staff' ? 'س' : 'هـ'}
+            {getUserAvatarLetter()}
           </div>
           {!isCollapsed && (
             <div className="sidebar-user-info">

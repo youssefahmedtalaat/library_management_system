@@ -2,6 +2,16 @@ import React from 'react';
 import { X, BookOpen, MapPin, Hash, Star, Calendar, BookmarkCheck, Building, Globe, Layers, CheckCircle } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { useLibrary } from '../context/LibraryContext';
+import {
+  getBookTitle,
+  getBookAuthor,
+  getBookDescription,
+  getBookCategory,
+  getBookPublisher,
+  getBookLanguage,
+  getBookShelf
+} from '../data/mockData';
+import { getShelfLocation } from '../data/translations';
 
 export default function BookDetailsModal() {
   const {
@@ -11,7 +21,9 @@ export default function BookDetailsModal() {
     reserveBook,
     reservations,
     currentRole,
-    updateCopyStatus
+    updateCopyStatus,
+    lang,
+    t
   } = useLibrary();
 
   if (!selectedBook) return null;
@@ -24,6 +36,14 @@ export default function BookDetailsModal() {
   const handleReserve = () => {
     reserveBook(selectedBook.id);
   };
+
+  const displayTitle = getBookTitle(selectedBook, lang);
+  const displayAuthor = getBookAuthor(selectedBook, lang);
+  const displayDesc = getBookDescription(selectedBook, lang);
+  const displayCategory = getBookCategory(selectedBook, lang);
+  const displayPublisher = getBookPublisher(selectedBook, lang);
+  const displayLanguage = getBookLanguage(selectedBook, lang);
+  const displayShelf = getBookShelf(selectedBook, lang);
 
   return (
     <div className="modal-backdrop" onClick={closeBookModal}>
@@ -41,13 +61,15 @@ export default function BookDetailsModal() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <BookOpen size={20} color="var(--color-primary)" />
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>بطاقة الكتاب والنسخ المادية</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
+              {t('modal.title')}
+            </h2>
           </div>
           <button
             type="button"
             className="btn btn-secondary btn-icon"
             onClick={closeBookModal}
-            aria-label="إغلاق النافذة"
+            aria-label={t('modal.close')}
           >
             <X size={18} />
           </button>
@@ -60,35 +82,37 @@ export default function BookDetailsModal() {
             <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', maxHeight: '240px' }}>
               <img
                 src={selectedBook.cover_image}
-                alt={selectedBook.title}
+                alt={displayTitle}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <span className="badge badge-neutral">{selectedBook.category}</span>
+                <span className="badge badge-neutral">{displayCategory}</span>
                 <span className="badge badge-ai" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                   <Star size={12} fill="var(--color-ai-accent)" />
-                  {selectedBook.rating} تقييم القراء
+                  {selectedBook.rating} {lang === 'en' ? 'Reader Rating' : 'تقييم القراء'}
                 </span>
                 <StatusBadge
                   status={selectedBook.available_copies > 0 ? 'available' : 'borrowed'}
-                  text={`${selectedBook.available_copies} من ${selectedBook.total_copies} متاح`}
+                  text={selectedBook.available_copies > 0
+                    ? (lang === 'en' ? `${selectedBook.available_copies} of ${selectedBook.total_copies} available` : `${selectedBook.available_copies} من ${selectedBook.total_copies} متاح`)
+                    : (lang === 'en' ? 'Checked Out' : 'مُعار بالكامل')}
                   size="sm"
                 />
               </div>
 
               <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>
-                {selectedBook.title}
+                {displayTitle}
               </h1>
 
               <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-primary)' }}>
-                تأليف: {selectedBook.author}
+                {t('modal.by')} {displayAuthor}
               </p>
 
               <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                {selectedBook.description}
+                {displayDesc}
               </p>
 
               {/* Bibliographic grid */}
@@ -106,15 +130,15 @@ export default function BookDetailsModal() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Building size={14} color="var(--text-muted)" />
-                  <span>الناشر: {selectedBook.publisher}</span>
+                  <span>{t('modal.publisher')} {displayPublisher}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Calendar size={14} color="var(--text-muted)" />
-                  <span>سنة النشر: {selectedBook.publication_year}</span>
+                  <span>{t('modal.pubYear')} {selectedBook.publication_year}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Globe size={14} color="var(--text-muted)" />
-                  <span>اللغة: {selectedBook.language}</span>
+                  <span>{t('modal.language')} {displayLanguage}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Hash size={14} color="var(--text-muted)" />
@@ -142,7 +166,7 @@ export default function BookDetailsModal() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <BookmarkCheck size={18} />
                 <span>
-                  يوجد حالياً <strong>{activeReservations.length} طلبات حجز</strong> نشطة في طابور الانتظار لهذا العنوان.
+                  {t('modal.activeHolds', { n: activeReservations.length })}
                 </span>
               </div>
             </div>
@@ -153,10 +177,10 @@ export default function BookDetailsModal() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Layers size={18} color="var(--color-primary)" />
-                النسخ المادية المستقلة ({copies.length} نسخ)
+                {t('modal.physicalCopiesTitle', { n: copies.length })}
               </h3>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                رمز الرف الافتراضي: <strong>{selectedBook.shelf_location}</strong>
+                {t('modal.defaultShelf')} <strong>{displayShelf}</strong>
               </span>
             </div>
 
@@ -164,10 +188,10 @@ export default function BookDetailsModal() {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>باركود النسخة</th>
-                    <th>موقع الرف</th>
-                    <th>الحالة التشغيلية</th>
-                    {currentRole === 'staff' && <th>إجراء الموظف</th>}
+                    <th>{t('modal.barcodeCol')}</th>
+                    <th>{t('modal.shelfCol')}</th>
+                    <th>{t('modal.statusCol')}</th>
+                    {currentRole === 'staff' && <th>{t('modal.staffActionCol')}</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -179,7 +203,7 @@ export default function BookDetailsModal() {
                       <td>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                           <MapPin size={13} color="var(--color-primary)" />
-                          {copy.shelf_location}
+                          {lang === 'en' ? (copy.shelf_location_en || getShelfLocation(copy.shelf_location, 'en')) : copy.shelf_location}
                         </span>
                       </td>
                       <td>
@@ -193,10 +217,10 @@ export default function BookDetailsModal() {
                             onChange={(e) => updateCopyStatus(copy.id, e.target.value)}
                             style={{ padding: '3px 8px', fontSize: '0.78rem', width: 'auto' }}
                           >
-                            <option value="available">متاح للإعارة</option>
-                            <option value="borrowed">مُعار حالياً</option>
-                            <option value="reserved">محجوز</option>
-                            <option value="maintenance">صيانة وتجليد</option>
+                            <option value="available">{t('modal.statusOptions.available')}</option>
+                            <option value="borrowed">{t('modal.statusOptions.borrowed')}</option>
+                            <option value="reserved">{t('modal.statusOptions.reserved')}</option>
+                            <option value="maintenance">{t('modal.statusOptions.maintenance')}</option>
                           </select>
                         </td>
                       )}
@@ -205,7 +229,7 @@ export default function BookDetailsModal() {
                   {copies.length === 0 && (
                     <tr>
                       <td colSpan={4} style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
-                        لا توجد نسخ مسجلة في قاعدة البيانات حالياً
+                        {t('modal.noCopiesRegistered')}
                       </td>
                     </tr>
                   )}
@@ -225,17 +249,19 @@ export default function BookDetailsModal() {
             alignItems: 'center',
             justifyContent: 'space-between',
             borderBottomLeftRadius: 'var(--radius-xl)',
-            borderBottomRightRadius: 'var(--radius-xl)'
+            borderBottomRightRadius: 'var(--radius-xl)',
+            flexWrap: 'wrap',
+            gap: '12px'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
             <CheckCircle size={15} color="var(--status-available-text)" />
-            <span>قواعد الإعارة المطبقة: مدة الإعارة 14 يوماً وتجديدين كحد أقصى</span>
+            <span>{t('modal.rulesNotice')}</span>
           </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>
             <button type="button" className="btn btn-secondary" onClick={closeBookModal}>
-              إغلاق
+              {t('modal.close')}
             </button>
             {currentRole === 'member' && (
               <button
@@ -244,7 +270,7 @@ export default function BookDetailsModal() {
                 onClick={handleReserve}
               >
                 <BookmarkCheck size={16} />
-                <span>{selectedBook.available_copies > 0 ? 'حجز مسبق للاستلام' : 'انضمام لطابور الحجز'}</span>
+                <span>{selectedBook.available_copies > 0 ? t('modal.holdForPickup') : t('modal.joinWaitlist')}</span>
               </button>
             )}
           </div>

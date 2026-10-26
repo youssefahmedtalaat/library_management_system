@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Plus, Mail, CheckCircle2, X } from 'lucide-react';
 import { useLibrary } from '../../context/LibraryContext';
 import StatusBadge from '../../components/StatusBadge';
+import { getStaffName, getStaffRoleTitle } from '../../data/mockData';
 
 export default function StaffManagementPage() {
-  const { staff, addStaffMember } = useLibrary();
+  const { staff, addStaffMember, lang } = useLibrary();
 
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,14 +19,26 @@ export default function StaffManagementPage() {
     e.preventDefault();
     if (!formData.full_name || !formData.email) return;
 
-    let roleTitle = 'أمين مكتبة';
-    if (formData.role === 'admin') roleTitle = 'مدير نظام المكتبة';
-    else if (formData.role === 'cataloger') roleTitle = 'مشرف الفهرسة والتصنيف';
-    else if (formData.role === 'librarian') roleTitle = 'أمين الإعارة والتداول';
+    let roleTitleAr = 'أمين مكتبة';
+    let roleTitleEn = 'Librarian';
+    if (formData.role === 'admin') {
+      roleTitleAr = 'مدير نظام المكتبة';
+      roleTitleEn = 'Library System Admin';
+    } else if (formData.role === 'cataloger') {
+      roleTitleAr = 'مشرف الفهرسة والتصنيف';
+      roleTitleEn = 'Cataloging Specialist';
+    } else if (formData.role === 'librarian') {
+      roleTitleAr = 'أمين الإعارة والتداول';
+      roleTitleEn = 'Circulation & Lending Librarian';
+    }
 
     addStaffMember({
       ...formData,
-      role_title: roleTitle
+      full_name_ar: formData.full_name,
+      full_name_en: formData.full_name,
+      role_title: roleTitleAr,
+      role_title_ar: roleTitleAr,
+      role_title_en: roleTitleEn
     });
 
     setShowModal(false);
@@ -37,16 +50,29 @@ export default function StaffManagementPage() {
     });
   };
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div style={{ maxWidth: '1360px', width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
       {/* Title */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 2px 0' }}>
-            إدارة حسابات الموظفين والصلاحيات
+            {lang === 'en' ? 'Staff Accounts & Permissions Management' : 'إدارة حسابات الموظفين والصلاحيات'}
           </h1>
           <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            إضافة وإدارة أمناء المكتبة، ومشرفي الفهرسة، ومديري النظام وضبط أذونات التداول.
+            {lang === 'en'
+              ? 'Add and administer librarians, catalogers, and system administrators, and manage circulation desk privileges.'
+              : 'إضافة وإدارة أمناء المكتبة، ومشرفي الفهرسة، ومديري النظام وضبط أذونات التداول.'}
           </p>
         </div>
 
@@ -56,7 +82,7 @@ export default function StaffManagementPage() {
           onClick={() => setShowModal(true)}
         >
           <Plus size={16} />
-          <span>إضافة حساب موظف جديد</span>
+          <span>{lang === 'en' ? 'Add Staff Member' : 'إضافة حساب موظف جديد'}</span>
         </button>
       </div>
 
@@ -66,58 +92,63 @@ export default function StaffManagementPage() {
           <table className="table">
             <thead>
               <tr>
-                <th>الموظف</th>
-                <th>البريد الإلكتروني</th>
-                <th>الدور والصلاحية</th>
-                <th>المسمى الوظيفي</th>
-                <th>آخر تسجيل دخول</th>
-                <th>حالة الحساب</th>
+                <th>{lang === 'en' ? 'Staff Member' : 'الموظف'}</th>
+                <th>{lang === 'en' ? 'Email' : 'البريد الإلكتروني'}</th>
+                <th>{lang === 'en' ? 'Role' : 'الدور والصلاحية'}</th>
+                <th>{lang === 'en' ? 'Job Title' : 'المسمى الوظيفي'}</th>
+                <th>{lang === 'en' ? 'Last Login' : 'آخر تسجيل دخول'}</th>
+                <th>{lang === 'en' ? 'Account Status' : 'حالة الحساب'}</th>
               </tr>
             </thead>
             <tbody>
-              {staff.map((s) => (
-                <tr key={s.id}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div
-                        style={{
-                          width: '34px',
-                          height: '34px',
-                          borderRadius: '50%',
-                          backgroundColor: 'var(--color-primary-subtle)',
-                          color: 'var(--color-primary)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 700,
-                          fontSize: '0.85rem'
-                        }}
-                      >
-                        {s.full_name.charAt(0)}
+              {staff.map((s) => {
+                const name = getStaffName(s, lang);
+                const roleTitle = getStaffRoleTitle(s, lang);
+
+                return (
+                  <tr key={s.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div
+                          style={{
+                            width: '34px',
+                            height: '34px',
+                            borderRadius: '50%',
+                            backgroundColor: 'var(--color-primary-subtle)',
+                            color: 'var(--color-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 700,
+                            fontSize: '0.85rem'
+                          }}
+                        >
+                          {name.charAt(0)}
+                        </div>
+                        <strong style={{ fontSize: '0.92rem' }}>{name}</strong>
                       </div>
-                      <strong style={{ fontSize: '0.92rem' }}>{s.full_name}</strong>
-                    </div>
-                  </td>
-                  <td>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                      <Mail size={13} />
-                      {s.email}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="badge badge-neutral" style={{ fontWeight: 700 }}>
-                      {s.role}
-                    </span>
-                  </td>
-                  <td>{s.role_title}</td>
-                  <td style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                    {new Date(s.last_login).toLocaleString('ar-EG')}
-                  </td>
-                  <td>
-                    <StatusBadge status={s.status} size="sm" />
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <Mail size={13} />
+                        {s.email}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="badge badge-neutral" style={{ fontWeight: 700 }}>
+                        {s.role}
+                      </span>
+                    </td>
+                    <td>{roleTitle}</td>
+                    <td style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                      {formatDate(s.last_login)}
+                    </td>
+                    <td>
+                      <StatusBadge status={s.status} size="sm" />
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -138,7 +169,7 @@ export default function StaffManagementPage() {
               }}
             >
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>
-                إنشاء حساب موظف جديد
+                {lang === 'en' ? 'Create New Staff Account' : 'إنشاء حساب موظف جديد'}
               </h3>
               <button
                 type="button"
@@ -151,11 +182,11 @@ export default function StaffManagementPage() {
 
             <form onSubmit={handleSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">الاسم الكامل للموظف:</label>
+                <label className="form-label">{lang === 'en' ? 'Full Name:' : 'الاسم الكامل للموظف:'}</label>
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="مثال: عبد الله السعدي"
+                  placeholder={lang === 'en' ? 'e.g. Abdullah Al-Saadi' : 'مثال: عبد الله السعدي'}
                   value={formData.full_name}
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                   required
@@ -163,7 +194,7 @@ export default function StaffManagementPage() {
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">البريد الإلكتروني المؤسسي:</label>
+                <label className="form-label">{lang === 'en' ? 'Institutional Email:' : 'البريد الإلكتروني المؤسسي:'}</label>
                 <input
                   type="email"
                   className="form-input"
@@ -175,15 +206,15 @@ export default function StaffManagementPage() {
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">الدور الوظيفي والصلاحية:</label>
+                <label className="form-label">{lang === 'en' ? 'Role & Permissions:' : 'الدور الوظيفي والصلاحية:'}</label>
                 <select
                   className="form-select"
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                 >
-                  <option value="librarian">أمين الإعارة والتداول (Librarian)</option>
-                  <option value="cataloger">مشرف الفهرسة وإدارة النسخ (Cataloger)</option>
-                  <option value="admin">مدير النظام والمكتبة (System Admin)</option>
+                  <option value="librarian">{lang === 'en' ? 'Circulation Desk Librarian' : 'أمين الإعارة والتداول'}</option>
+                  <option value="cataloger">{lang === 'en' ? 'Cataloging & Inventory Specialist' : 'مشرف الفهرسة وإدارة النسخ'}</option>
+                  <option value="admin">{lang === 'en' ? 'System & Library Admin' : 'مدير النظام والمكتبة'}</option>
                 </select>
               </div>
 
@@ -193,11 +224,11 @@ export default function StaffManagementPage() {
                   className="btn btn-secondary"
                   onClick={() => setShowModal(false)}
                 >
-                  إلغاء
+                  {lang === 'en' ? 'Cancel' : 'إلغاء'}
                 </button>
                 <button type="submit" className="btn btn-primary">
                   <CheckCircle2 size={16} />
-                  <span>إنشاء الحساب</span>
+                  <span>{lang === 'en' ? 'Create Account' : 'إنشاء الحساب'}</span>
                 </button>
               </div>
             </form>

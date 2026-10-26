@@ -12,25 +12,25 @@ export default function TopBar() {
   const notifications = [
     {
       id: 1,
-      title: 'موعد استحقاق قريب',
-      text: 'كتاب "الكود النظيف" مستحق للإرجاع خلال 48 ساعة.',
-      time: 'منذ ساعتين',
+      title: lang === 'en' ? 'Upcoming Due Date' : 'موعد استحقاق قريب',
+      text: lang === 'en' ? 'Book "Clean Code" is due for return within 48 hours.' : 'كتاب "الكود النظيف" مستحق للإرجاع خلال 48 ساعة.',
+      time: lang === 'en' ? '2h ago' : 'منذ ساعتين',
       type: 'warning',
       unread: true
     },
     {
       id: 2,
-      title: 'إشعار قائمة الحجز',
-      text: 'أنت الآن في المرتبة #1 لحجز كتاب "ثلاثية غرناطة".',
-      time: 'منذ يوم',
+      title: lang === 'en' ? 'Reservation Hold Notice' : 'إشعار قائمة الحجز',
+      text: lang === 'en' ? 'You are now #1 in queue for "Granada: A Novel".' : 'أنت الآن في المرتبة #1 لحجز كتاب "ثلاثية غرناطة".',
+      time: lang === 'en' ? '1d ago' : 'منذ يوم',
       type: 'info',
       unread: true
     },
     {
       id: 3,
-      title: 'تحديث الفهرس',
-      text: 'تمت إضافة 4 مراجع جديدة في جناح الذكاء الاصطناعي.',
-      time: 'منذ يومين',
+      title: lang === 'en' ? 'Catalog Updated' : 'تحديث الفهرس',
+      text: lang === 'en' ? '4 new titles added to the AI & Technology wing.' : 'تمت إضافة 4 مراجع جديدة في جناح الذكاء الاصطناعي.',
+      time: lang === 'en' ? '2d ago' : 'منذ يومين',
       type: 'success',
       unread: false
     }
@@ -99,7 +99,7 @@ export default function TopBar() {
           <button
             className="topbar-icon-btn"
             onClick={() => setShowNotifications(!showNotifications)}
-            aria-label="التنبيهات"
+            aria-label={lang === 'ar' ? 'التنبيهات' : 'Notifications'}
           >
             <Bell size={19} />
             {unreadCount > 0 && (

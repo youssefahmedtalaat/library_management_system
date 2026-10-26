@@ -3,7 +3,8 @@ import { CheckCircle2, AlertTriangle, XCircle, Info, X } from 'lucide-react';
 import { useLibrary } from '../context/LibraryContext';
 
 export default function ToastContainer() {
-  const { toasts, removeToast } = useLibrary();
+  const { toasts, removeToast, lang } = useLibrary();
+  const isRtl = lang === 'ar';
 
   if (!toasts || toasts.length === 0) return null;
 
@@ -12,7 +13,7 @@ export default function ToastContainer() {
       style={{
         position: 'fixed',
         bottom: '24px',
-        left: '24px',
+        [isRtl ? 'right' : 'left']: '24px',
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
@@ -47,7 +48,8 @@ export default function ToastContainer() {
             className="card"
             style={{
               padding: '14px 16px',
-              borderLeft: `4px solid ${borderColor}`,
+              borderLeft: isRtl ? 'none' : `4px solid ${borderColor}`,
+              borderRight: isRtl ? `4px solid ${borderColor}` : 'none',
               backgroundColor: 'var(--bg-surface)',
               boxShadow: 'var(--shadow-lg)',
               display: 'flex',

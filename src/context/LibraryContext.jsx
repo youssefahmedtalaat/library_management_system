@@ -10,6 +10,7 @@ import {
   initialStaff,
   initialPolicies
 } from '../data/mockData';
+import { translate } from '../data/translations';
 
 const LibraryContext = createContext();
 
@@ -50,17 +51,26 @@ export function LibraryProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
   // AI Assistant conversation state
-  const [aiMessages, setAiMessages] = useState([
+  const [aiMessages, setAiMessages] = useState(() => [
     {
       id: 1,
       sender: 'assistant',
-      text: 'مرحباً بك في المساعد الذكي لمكتبتنا! 📚 يمكنني مساعدتك في العثور على الكتب المناسبة، وشرح سبب التوصية، أو توضيح سياسات الإعارة والاسترجاع المعتمدة.',
-      suggestions: [
-        'قصة غموض قصيرة للمبتدئين',
-        'أفضل مراجع الذكاء الاصطناعي وهندسة البرمجيات',
-        'روايات تاريخية عربية مشوقة',
-        'ما هي مدة الإعارة وسياسة التجديد؟'
-      ],
+      text: lang === 'en'
+        ? 'Welcome to the Smart Library AI Assistant! 📚 I can help you find suitable books, explain recommendations, or clarify lending and return policies.'
+        : 'مرحباً بك في المساعد الذكي لمكتبتنا! 📚 يمكنني مساعدتك في العثور على الكتب المناسبة، وشرح سبب التوصية، أو توضيح سياسات الإعارة والاسترجاع المعتمدة.',
+      suggestions: lang === 'en'
+        ? [
+            'Short mystery stories for beginners',
+            'Top AI & software engineering references',
+            'Compelling historical literature',
+            'What is the loan duration and renewal policy?'
+          ]
+        : [
+            'قصة غموض قصيرة للمبتدئين',
+            'أفضل مراجع الذكاء الاصطناعي وهندسة البرمجيات',
+            'روايات تاريخية عربية مشوقة',
+            'ما هي مدة الإعارة وسياسة التجديد؟'
+          ],
       matchedBooks: []
     }
   ]);
@@ -72,11 +82,40 @@ export function LibraryProvider({ children }) {
     localStorage.setItem('library_theme', theme);
   }, [theme]);
 
-  // Sync language and dir with DOM
+  // Sync language and dir with DOM & sync initial welcome message
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     localStorage.setItem('library_lang', lang);
+
+    setAiMessages((prev) => {
+      if (prev.length === 1 && prev[0].id === 1) {
+        return [
+          {
+            id: 1,
+            sender: 'assistant',
+            text: lang === 'en'
+              ? 'Welcome to the Smart Library AI Assistant! 📚 I can help you find suitable books, explain recommendations, or clarify lending and return policies.'
+              : 'مرحباً بك في المساعد الذكي لمكتبتنا! 📚 يمكنني مساعدتك في العثور على الكتب المناسبة، وشرح سبب التوصية، أو توضيح سياسات الإعارة والاسترجاع المعتمدة.',
+            suggestions: lang === 'en'
+              ? [
+                  'Short mystery stories for beginners',
+                  'Top AI & software engineering references',
+                  'Compelling historical literature',
+                  'What is the loan duration and renewal policy?'
+                ]
+              : [
+                  'قصة غموض قصيرة للمبتدئين',
+                  'أفضل مراجع الذكاء الاصطناعي وهندسة البرمجيات',
+                  'روايات تاريخية عربية مشوقة',
+                  'ما هي مدة الإعارة وسياسة التجديد؟'
+                ],
+            matchedBooks: []
+          }
+        ];
+      }
+      return prev;
+    });
   }, [lang]);
 
   const toggleTheme = () => {
@@ -86,6 +125,11 @@ export function LibraryProvider({ children }) {
   const toggleLang = () => {
     setLang((prev) => (prev === 'ar' ? 'en' : 'ar'));
   };
+
+  // Translation helper bound to current language
+  const t = useCallback((keyPath, params = {}) => {
+    return translate(keyPath, lang, params);
+  }, [lang]);
 
   // Toast notification helper
   const addToast = useCallback((toast) => {
@@ -107,16 +151,21 @@ export function LibraryProvider({ children }) {
   const closeBookModal = () => setSelectedBook(null);
 
   // Audit log helper
-  const recordAudit = (action, entityType, entityId, details) => {
+  const recordAudit = (action, entityType, entityId, details, actionEn, detailsEn) => {
+    const isMember = currentRole === 'member';
+    const isStaff = currentRole === 'staff';
     const newEntry = {
       id: Date.now(),
-      actor: currentRole === 'member' ? 'العضو (أحمد التميمي)' : currentRole === 'staff' ? 'أمين الإعارة (سليمان)' : 'مدير النظام (د. هشام)',
-      actor_role: currentRole === 'member' ? 'Member' : currentRole === 'staff' ? 'Librarian' : 'Admin',
+      actor: isMember ? 'العضو (أحمد التميمي)' : isStaff ? 'أمين الإعارة (سليمان)' : 'مدير النظام (د. هشام)',
+      actor_en: isMember ? 'Member (Ahmed Al-Tamimi)' : isStaff ? 'Circulation Desk (Sulaiman)' : 'System Admin (Dr. Hesham)',
+      actor_role: isMember ? 'Member' : isStaff ? 'Librarian' : 'Admin',
       action,
+      action_en: actionEn || action,
       entity_type: entityType,
       entity_id: String(entityId),
       created_at: new Date().toISOString(),
-      details
+      details,
+      details_en: detailsEn || details
     };
     setAuditLogs((prev) => [newEntry, ...prev]);
   };
@@ -609,36 +658,63 @@ export function LibraryProvider({ children }) {
       let suggestions = [];
 
       // Logic simulating context retrieval and safe policy answers:
-      if (q.includes('غموض') || q.includes('بوليسي') || q.includes('مبتدئ')) {
+      const isEnglish = lang === 'en';
+
+      if (q.includes('غموض') || q.includes('بوليسي') || q.includes('مبتدئ') || q.includes('mystery') || q.includes('detective') || q.includes('crime')) {
         matched = books.filter((b) => b.category.includes('غموض') || b.id === 5);
-        explanation = 'اخترت لك قصة الغموض الكلاسيكية الأكثر تشويقاً وتناسب المبتدئين لأسلوبها السلس وجريمتها المحكمة داخل غرفة مغلقة.';
-        suggestions = ['هل تتوفر نسخ في جناح الغموض؟', 'اقترح لي روايات أدبية أخرى'];
-      } else if (q.includes('ذكاء') || q.includes('ai') || q.includes('برمج') || q.includes('كود')) {
+        explanation = isEnglish
+          ? 'I recommend this captivating locked-room classic mystery, ideal for beginners due to its accessible pacing and deductive puzzle structure.'
+          : 'اخترت لك قصة الغموض الكلاسيكية الأكثر تشويقاً وتناسب المبتدئين لأسلوبها السلس وجريمتها المحكمة داخل غرفة مغلقة.';
+        suggestions = isEnglish
+          ? ['Are copies available on the mystery shelf?', 'Recommend other historical fiction titles']
+          : ['هل تتوفر نسخ في جناح الغموض؟', 'اقترح لي روايات أدبية أخرى'];
+      } else if (q.includes('ذكاء') || q.includes('ai') || q.includes('برمج') || q.includes('كود') || q.includes('software') || q.includes('data') || q.includes('code')) {
         matched = books.filter((b) => b.category.includes('ذكاء') || b.id === 2 || b.id === 4 || b.id === 8);
-        explanation = 'هذه أبرز المراجع التقنية الأكثر تقييماً واستعارة في الفهرس لموضوعات الذكاء الاصطناعي وهندسة البرمجيات وقواعد البيانات الموثوقة.';
-        suggestions = ['ما هي مواعيد استحقاق الكتب المعارة؟', 'كيف أطلب تجديد كتاب تقني؟'];
-      } else if (q.includes('تاريخ') || q.includes('حضار') || q.includes('أندلس') || q.includes('ابن خلدون')) {
+        explanation = isEnglish
+          ? 'Here are the premier technical volumes in our catalog covering AI, software craftsmanship, clean code practices, and data systems.'
+          : 'هذه أبرز المراجع التقنية الأكثر تقييماً واستعارة في الفهرس لموضوعات الذكاء الاصطناعي وهندسة البرمجيات وقواعد البيانات الموثوقة.';
+        suggestions = isEnglish
+          ? ['What are due dates for checked-out books?', 'How do I renew a technical book?']
+          : ['ما هي مواعيد استحقاق الكتب المعارة؟', 'كيف أطلب تجديد كتاب تقني؟'];
+      } else if (q.includes('تاريخ') || q.includes('حضار') || q.includes('أندلس') || q.includes('ابن خلدون') || q.includes('history') || q.includes('andalus') || q.includes('philosophy')) {
         matched = books.filter((b) => b.id === 1 || b.id === 3 || b.id === 7);
-        explanation = 'إليك أبرز المصنفات التاريخية والأدبية التي تجمع بين البعد الفلسفي والتوثيق الملحمي الممتع.';
-        suggestions = ['هل كتاب مقدمة ابن خلدون متاح الآن؟', 'اقترح لي كتاب في تطوير الذات'];
-      } else if (q.includes('سياس') || q.includes('تجديد') || q.includes('مدة') || q.includes('غرام') || q.includes('قانون')) {
-        explanation = `وفقاً للسياسة المعتمدة في المكتبة: مدة الإعارة الأساسية هي ${policies.default_loan_days} يوماً، والحد الأقصى للتجديد هو ${policies.max_renewals} مرات بشرط عدم وجود حجز نشط للعنوان. غرامة التأخير تبلغ ${policies.fine_per_day} ر.س عن كل يوم تأخير.`;
-        suggestions = ['كيف أحجز عنواناً معاراً؟', 'عرض كتبي المعارة حالياً'];
+        explanation = isEnglish
+          ? 'Here are landmark historical and literary works combining deep philosophical insight with compelling generational storytelling.'
+          : 'إليك أبرز المصنفات التاريخية والأدبية التي تجمع بين البعد الفلسفي والتوثيق الملحمي الممتع.';
+        suggestions = isEnglish
+          ? ['Is The Muqaddimah currently available?', 'Suggest a self-development book']
+          : ['هل كتاب مقدمة ابن خلدون متاح الآن؟', 'اقترح لي كتاب في تطوير الذات'];
+      } else if (q.includes('سياس') || q.includes('تجديد') || q.includes('مدة') || q.includes('غرام') || q.includes('قانون') || q.includes('policy') || q.includes('renew') || q.includes('fine') || q.includes('rule')) {
+        explanation = isEnglish
+          ? `Per official library policy: standard loan duration is ${policies.default_loan_days} days, with a maximum of ${policies.max_renewals} renewals provided there are no pending holds. The late return fine is ${policies.fine_per_day} SAR per overdue day.`
+          : `وفقاً للسياسة المعتمدة في المكتبة: مدة الإعارة الأساسية هي ${policies.default_loan_days} يوماً، والحد الأقصى للتجديد هو ${policies.max_renewals} مرات بشرط عدم وجود حجز نشط للعنوان. غرامة التأخير تبلغ ${policies.fine_per_day} ر.س عن كل يوم تأخير.`;
+        suggestions = isEnglish
+          ? ['How can I hold a checked-out book?', 'View my currently borrowed books']
+          : ['كيف أحجز عنواناً معاراً؟', 'عرض كتبي المعارة حالياً'];
       } else {
         // General search in books
         matched = books.filter(
           (b) =>
             b.title.toLowerCase().includes(q) ||
+            (b.title_en && b.title_en.toLowerCase().includes(q)) ||
             b.author.toLowerCase().includes(q) ||
+            (b.author_en && b.author_en.toLowerCase().includes(q)) ||
             b.category.toLowerCase().includes(q) ||
+            (b.category_en && b.category_en.toLowerCase().includes(q)) ||
             b.match_keywords.some((k) => k.toLowerCase().includes(q))
         );
 
         if (matched.length > 0) {
-          explanation = `وجدت ${matched.length} كتاب مرتبط باستفسارك في فهرس المكتبة الرسمي:`;
+          explanation = isEnglish
+            ? `Found ${matched.length} book(s) related to your query in the library catalog:`
+            : `وجدت ${matched.length} كتاب مرتبط باستفسارك في فهرس المكتبة الرسمي:`;
         } else {
-          explanation = 'لم أعثر على كتب متطابقة تماماً مع هذه الكلمات في الفهرس المتاح حالياً، ولكن يمكنك استكشاف الفئات العامة أو البحث بواسطة اسم المؤلف.';
-          suggestions = ['أفضل كتب تطوير الذات المتاحة', 'كتب التاريخ والفلسفة', 'ما هي مدة الإعارة المسموحة؟'];
+          explanation = isEnglish
+            ? "I didn't find exact book matches for those keywords in our catalog, but you can explore general categories or search by author name."
+            : 'لم أعثر على كتب متطابقة تماماً مع هذه الكلمات في الفهرس المتاح حالياً، ولكن يمكنك استكشاف الفئات العامة أو البحث بواسطة اسم المؤلف.';
+          suggestions = isEnglish
+            ? ['Top self-development books', 'History & Philosophy titles', 'What is the standard loan period?']
+            : ['أفضل كتب تطوير الذات المتاحة', 'كتب التاريخ والفلسفة', 'ما هي مدة الإعارة المسموحة؟'];
         }
       }
 
@@ -671,6 +747,7 @@ export function LibraryProvider({ children }) {
         toggleTheme,
         lang,
         toggleLang,
+        t,
         currentRole,
         setCurrentRole,
         activeTab,

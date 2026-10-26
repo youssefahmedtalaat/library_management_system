@@ -3,7 +3,7 @@ import { Settings, ShieldCheck, CheckCircle2, RotateCcw, Sparkles } from 'lucide
 import { useLibrary } from '../../context/LibraryContext';
 
 export default function PoliciesPage() {
-  const { policies, updatePolicies } = useLibrary();
+  const { policies, updatePolicies, lang } = useLibrary();
 
   const [formState, setFormState] = useState({ ...policies });
 
@@ -21,10 +21,12 @@ export default function PoliciesPage() {
       {/* Title */}
       <div>
         <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 2px 0' }}>
-          سياسات وقواعد التداول والإعارة
+          {lang === 'en' ? 'Lending Rules & System Policies' : 'سياسات وقواعد التداول والإعارة'}
         </h1>
         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          تحديد الحدود القصوى للاستعارة، مدد الإعارات، مهل الحجز، رسوم التأخير، وإعدادات الذكاء الاصطناعي.
+          {lang === 'en'
+            ? 'Configure borrowing quotas, loan periods, reservation hold windows, late return fees, and AI assistant settings.'
+            : 'تحديد الحدود القصوى للاستعارة، مدد الإعارات، مهل الحجز، رسوم التأخير، وإعدادات الذكاء الاصطناعي.'}
         </p>
       </div>
 
@@ -33,14 +35,14 @@ export default function PoliciesPage() {
         <div className="card" style={{ padding: '24px', backgroundColor: 'var(--bg-surface)' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ShieldCheck size={20} color="var(--color-primary)" />
-            قواعد الإعارة والتجديد
+            {lang === 'en' ? 'Lending & Renewal Rules' : 'قواعد الإعارة والتجديد'}
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label className="form-label">
-                الحد الأقصى للكتب المعارة في وقت واحد لكل عضو:
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>كتب</span>
+                {lang === 'en' ? 'Maximum active loans per member:' : 'الحد الأقصى للكتب المعارة في وقت واحد لكل عضو:'}
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}> {lang === 'en' ? 'books' : 'كتب'}</span>
               </label>
               <input
                 type="number"
@@ -55,8 +57,8 @@ export default function PoliciesPage() {
 
             <div className="form-group" style={{ margin: 0 }}>
               <label className="form-label">
-                المدة الافتراضية للإعارة:
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>أيام</span>
+                {lang === 'en' ? 'Default loan duration:' : 'المدة الافتراضية للإعارة:'}
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}> {lang === 'en' ? 'days' : 'أيام'}</span>
               </label>
               <input
                 type="number"
@@ -71,8 +73,8 @@ export default function PoliciesPage() {
 
             <div className="form-group" style={{ margin: 0 }}>
               <label className="form-label">
-                الحد الأقصى لمرات التجديد المسموحة لكل كتاب:
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>مرات</span>
+                {lang === 'en' ? 'Maximum allowed renewals per book:' : 'الحد الأقصى لمرات التجديد المسموحة لكل كتاب:'}
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}> {lang === 'en' ? 'times' : 'مرات'}</span>
               </label>
               <input
                 type="number"
@@ -91,14 +93,14 @@ export default function PoliciesPage() {
         <div className="card" style={{ padding: '24px', backgroundColor: 'var(--bg-surface)' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Settings size={20} color="var(--color-primary)" />
-            رسوم التأخير ومهل طوابير الحجز
+            {lang === 'en' ? 'Overdue Fines & Hold Queues' : 'رسوم التأخير ومهل طوابير الحجز'}
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label className="form-label">
-                غرامة التأخير اليومية عن كل نسخة متأخرة:
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ر.س / يوم</span>
+                {lang === 'en' ? 'Daily overdue fine per item:' : 'غرامة التأخير اليومية عن كل نسخة متأخرة:'}
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}> {lang === 'en' ? 'SAR / day' : 'ر.س / يوم'}</span>
               </label>
               <input
                 type="number"
@@ -113,8 +115,8 @@ export default function PoliciesPage() {
 
             <div className="form-group" style={{ margin: 0 }}>
               <label className="form-label">
-                مهلة استلام النسخة المحجوزة قبل إلغائها للعضو التالي:
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ساعات</span>
+                {lang === 'en' ? 'Hold pickup window before automatic cancellation:' : 'مهلة استلام النسخة المحجوزة قبل إلغائها للعضو التالي:'}
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}> {lang === 'en' ? 'hours' : 'ساعات'}</span>
               </label>
               <input
                 type="number"
@@ -144,10 +146,12 @@ export default function PoliciesPage() {
                 <Sparkles size={18} color="var(--color-ai-accent)" />
                 <div>
                   <strong style={{ fontSize: '0.85rem', color: 'var(--color-ai-accent)', display: 'block' }}>
-                    تفعيل أمين المكتبة الذكي (AI Assistant)
+                    {lang === 'en' ? 'Enable Smart AI Librarian' : 'تفعيل أمين المكتبة الذكي (AI Assistant)'}
                   </strong>
                   <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                    تمكين الأعضاء من استكشاف الفهرس وفهم سياسات الإعارة
+                    {lang === 'en'
+                      ? 'Empower members to query the catalog in natural language and understand policies'
+                      : 'تمكين الأعضاء من استكشاف الفهرس وفهم سياسات الإعارة'}
                   </span>
                 </div>
               </div>
@@ -169,11 +173,11 @@ export default function PoliciesPage() {
             onClick={() => setFormState({ ...policies })}
           >
             <RotateCcw size={16} />
-            <span>إعادة التعيين</span>
+            <span>{lang === 'en' ? 'Reset to Defaults' : 'إعادة التعيين'}</span>
           </button>
           <button type="submit" className="btn btn-primary" style={{ padding: '10px 24px' }}>
             <CheckCircle2 size={18} />
-            <span>حفظ واعتماد التعديلات</span>
+            <span>{lang === 'en' ? 'Save & Enforce Policies' : 'حفظ واعتماد التعديلات'}</span>
           </button>
         </div>
       </form>
