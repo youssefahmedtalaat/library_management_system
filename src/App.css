@@ -504,10 +504,11 @@ html[dir="ltr"] .app-main {
   transition: all var(--transition-fast);
 }
 
-.topbar-icon-btn:hover {
+.topbar-icon-btn:hover,
+.topbar-icon-btn.active {
   background: var(--bg-muted);
-  border-color: var(--border-hover);
-  color: var(--text-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .topbar-notification-dot {
@@ -545,9 +546,11 @@ html[dir="rtl"] .topbar-notification-dot {
 
 .topbar-notifications-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  width: 340px;
+  top: calc(100% + 10px);
+  right: 0;
+  left: auto;
+  width: 360px;
+  max-width: calc(100vw - 32px);
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -558,8 +561,8 @@ html[dir="rtl"] .topbar-notification-dot {
 }
 
 html[dir="rtl"] .topbar-notifications-dropdown {
-  left: auto;
-  right: 0;
+  right: auto;
+  left: 0;
 }
 
 .topbar-notifications-header {

@@ -97,7 +97,7 @@ export default function TopBar() {
         {/* Notifications */}
         <div className="topbar-notifications-wrapper">
           <button
-            className="topbar-icon-btn"
+            className={`topbar-icon-btn ${showNotifications ? 'active' : ''}`}
             onClick={() => setShowNotifications(!showNotifications)}
             aria-label={lang === 'ar' ? 'التنبيهات' : 'Notifications'}
           >
@@ -110,11 +110,20 @@ export default function TopBar() {
           {showNotifications && (
             <>
               <div className="topbar-overlay" onClick={() => setShowNotifications(false)} />
-              <div className="topbar-notifications-dropdown">
+              <div
+                className="topbar-notifications-dropdown"
+                style={{
+                  [lang === 'ar' ? 'left' : 'right']: 0,
+                  [lang === 'ar' ? 'right' : 'left']: 'auto',
+                }}
+              >
                 <div className="topbar-notifications-header">
-                  <span className="topbar-notifications-title">
-                    {lang === 'ar' ? 'الإشعارات' : 'Notifications'}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Bell size={15} color="var(--color-primary)" />
+                    <span className="topbar-notifications-title">
+                      {lang === 'ar' ? 'الإشعارات' : 'Notifications'}
+                    </span>
+                  </div>
                   <span className="badge badge-ai" style={{ fontSize: '0.7rem' }}>
                     {unreadCount} {lang === 'ar' ? 'جديدة' : 'new'}
                   </span>
