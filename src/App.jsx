@@ -1,6 +1,7 @@
 import React from 'react';
 import { LibraryProvider, useLibrary } from './context/LibraryContext';
-import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
+import TopBar from './components/TopBar';
 import BookDetailsModal from './components/BookDetailsModal';
 import AIAssistantDrawer from './components/AIAssistantDrawer';
 import ToastContainer from './components/ToastContainer';
@@ -24,7 +25,7 @@ import AuditLogPage from './pages/admin/AuditLogPage';
 import './App.css';
 
 function AppContent() {
-  const { currentRole, activeTab, theme } = useLibrary();
+  const { currentRole, activeTab } = useLibrary();
 
   // Router dispatcher
   const renderCurrentPage = () => {
@@ -73,74 +74,27 @@ function AppContent() {
   };
 
   return (
-    <div className="app-wrapper">
-      {/* Top Navigation */}
-      <Navbar />
+    <div className="app-layout">
+      {/* Sidebar Navigation */}
+      <Sidebar />
 
-      {/* Design System Tokens Status Strip */}
-      <div className="tokens-ribbon">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <strong>🎨 Design System Tokens ({theme.toUpperCase()}):</strong>
-        </div>
-        <div className="tokens-swatches">
-          <span className="token-swatch">
-            <span className="token-circle" style={{ backgroundColor: 'var(--color-primary)' }} />
-            Primary (Oxford Navy)
-          </span>
-          <span className="token-swatch">
-            <span className="token-circle" style={{ backgroundColor: 'var(--color-ai-accent)' }} />
-            AI Accent (Warm Library Amber)
-          </span>
-          <span className="token-swatch">
-            <span className="token-circle" style={{ backgroundColor: 'var(--status-available-text)' }} />
-            متاح (#15803D)
-          </span>
-          <span className="token-swatch">
-            <span className="token-circle" style={{ backgroundColor: 'var(--status-borrowed-text)' }} />
-            مُعار (#1D4ED8)
-          </span>
-          <span className="token-swatch">
-            <span className="token-circle" style={{ backgroundColor: 'var(--status-reserved-text)' }} />
-            محجوز (#B45309)
-          </span>
-          <span className="token-swatch">
-            <span className="token-circle" style={{ backgroundColor: 'var(--status-overdue-text)' }} />
-            متأخر (#B91C1C)
-          </span>
-        </div>
-        <div>
-          <span>LMS Frontend v1.0 • React + Vite</span>
-        </div>
+      {/* Main Content Area */}
+      <div className="app-main">
+        {/* Top Bar */}
+        <TopBar />
+
+        {/* Page Content */}
+        <main className="main-content">
+          <div className="page-container">
+            {renderCurrentPage()}
+          </div>
+        </main>
       </div>
-
-      {/* Main Page Body */}
-      <main className="main-content">
-        {renderCurrentPage()}
-      </main>
 
       {/* Global Modals & Drawers */}
       <BookDetailsModal />
       <AIAssistantDrawer />
       <ToastContainer />
-
-      {/* App Footer */}
-      <footer className="app-footer">
-        <div className="app-footer-container">
-          <div>
-            <strong>نظام إدارة المكتبة الذكي (Smart Library Management System)</strong>
-            <p style={{ margin: '3px 0 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              منصة رقمية موحدة لإدارة الفهرس الببليوغرافي، دورة الإعارة والتداول، ومساعد اكتشاف الكتب بالذكاء الاصطناعي.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '16px', fontSize: '0.78rem' }}>
-            <span>دليل الاستخدام</span>
-            <span>•</span>
-            <span>سياسة الخصوصية</span>
-            <span>•</span>
-            <span>معايير إتاحة WCAG AA</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

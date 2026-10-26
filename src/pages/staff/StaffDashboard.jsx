@@ -7,7 +7,14 @@ import {
   Barcode,
   PlusCircle,
   FileText,
-  CheckCircle2
+  CheckCircle2,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  CalendarDays,
+  ArrowUpRight,
+  MoreHorizontal,
+  BookMarked
 } from 'lucide-react';
 import { useLibrary } from '../../context/LibraryContext';
 
@@ -19,13 +26,14 @@ export default function StaffDashboard() {
     reservations,
     fines,
     auditLogs,
+    members,
     issueLoan,
     returnLoan,
     setActiveTab
   } = useLibrary();
 
   // Quick circulation states
-  const [quickMode, setQuickMode] = useState('issue'); // 'issue' | 'return'
+  const [quickMode, setQuickMode] = useState('issue');
   const [barcodeInput, setBarcodeInput] = useState('');
   const [memberCodeInput, setMemberCodeInput] = useState('');
 
@@ -36,6 +44,7 @@ export default function StaffDashboard() {
   const overdueLoans = loans.filter((l) => l.status === 'overdue' && !l.returned_at);
   const activeReservations = reservations.filter((r) => r.status === 'active');
   const unpaidFinesTotal = fines.filter((f) => f.status === 'unpaid').reduce((sum, f) => sum + f.amount, 0);
+  const availableCopies = bookCopies.filter((c) => c.status === 'available').length;
 
   const handleQuickSubmit = (e) => {
     e.preventDefault();
@@ -50,150 +59,136 @@ export default function StaffDashboard() {
     }
   };
 
+  const kpiCards = [
+    {
+      label: 'عناوين الفهرس',
+      value: totalBooks,
+      sub: `${totalCopies} نسخ مادية`,
+      icon: BookOpen,
+      trend: '+2',
+      trendUp: true,
+      color: 'primary'
+    },
+    {
+      label: 'الإعارات الجارية',
+      value: activeLoans.length,
+      sub: `${availableCopies} نسخ متاحة`,
+      icon: ArrowRightLeft,
+      trend: null,
+      color: 'borrowed'
+    },
+    {
+      label: 'الحجوزات النشطة',
+      value: activeReservations.length,
+      sub: 'في طوابير الانتظار',
+      icon: Clock,
+      trend: null,
+      color: 'reserved'
+    },
+    {
+      label: 'المتأخرات',
+      value: overdueLoans.length,
+      sub: `${unpaidFinesTotal} ر.س غرامات`,
+      icon: AlertTriangle,
+      trend: overdueLoans.length > 0 ? `${overdueLoans.length}` : '0',
+      trendUp: false,
+      color: 'overdue'
+    }
+  ];
+
+  const getKPIStyles = (color) => {
+    const styles = {
+      primary: {
+        iconBg: 'var(--color-primary-subtle)',
+        iconColor: 'var(--color-primary)',
+        valueColor: 'var(--color-primary)',
+      },
+      borrowed: {
+        iconBg: 'var(--status-borrowed-bg)',
+        iconColor: 'var(--status-borrowed-text)',
+        valueColor: 'var(--status-borrowed-text)',
+      },
+      reserved: {
+        iconBg: 'var(--status-reserved-bg)',
+        iconColor: 'var(--status-reserved-text)',
+        valueColor: 'var(--status-reserved-text)',
+      },
+      overdue: {
+        iconBg: 'var(--status-overdue-bg)',
+        iconColor: 'var(--status-overdue-text)',
+        valueColor: 'var(--status-overdue-text)',
+      }
+    };
+    return styles[color] || styles.primary;
+  };
+
+  // Weekly mini chart data (simulated)
+  const weekDays = ['سب', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع'];
+  const weekData = [3, 7, 5, 8, 4, 6, 2];
+  const maxWeek = Math.max(...weekData);
+
   return (
-    <div style={{ padding: '24px 20px', maxWidth: '1360px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Page Title & Staff Greeting */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h1 style={{ fontSize: '1.45rem', fontWeight: 800, margin: '0 0 4px 0' }}>
-            لوحة متابعة أمين المكتبة والتداول
-          </h1>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            نظرة عامة فورية على حركة الإعارات، النسخ المتاحة، الحجوزات، والعمليات السريعة.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setActiveTab('circulation')}
-          >
-            <ArrowRightLeft size={16} />
-            <span>مكتب التداول الكامل</span>
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => setActiveTab('catalog-mgmt')}
-          >
-            <PlusCircle size={16} />
-            <span>إضافة كتاب جديد</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Stats Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px'
-        }}
-      >
-        {/* Total Catalog Titles */}
-        <div className="card" style={{ padding: '18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--color-primary-subtle)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <BookOpen size={24} />
-          </div>
-          <div>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>عناوين الفهرس</span>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '2px 0 0 0' }}>{totalBooks}</h3>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{totalCopies} نسخ مادية</span>
-          </div>
-        </div>
-
-        {/* Active Loans */}
-        <div className="card" style={{ padding: '18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--status-borrowed-bg)', color: 'var(--status-borrowed-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowRightLeft size={24} />
-          </div>
-          <div>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>الإعارات الجارية</span>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '2px 0 0 0', color: 'var(--status-borrowed-text)' }}>{activeLoans.length}</h3>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>موزعة على الأعضاء</span>
-          </div>
-        </div>
-
-        {/* Active Reservations */}
-        <div className="card" style={{ padding: '18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--status-reserved-bg)', color: 'var(--status-reserved-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Clock size={24} />
-          </div>
-          <div>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>الحجوزات النشطة</span>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '2px 0 0 0', color: 'var(--status-reserved-text)' }}>{activeReservations.length}</h3>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>في طوابير الانتظار</span>
-          </div>
-        </div>
-
-        {/* Overdue Loans */}
-        <div className="card" style={{ padding: '18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--status-overdue-bg)', color: 'var(--status-overdue-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <AlertTriangle size={24} />
-          </div>
-          <div>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>المتأخرات اليوم</span>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '2px 0 0 0', color: 'var(--status-overdue-text)' }}>{overdueLoans.length}</h3>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{unpaidFinesTotal} ر.س غرامات</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Circulation Widget + Recent Activity */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
-        {/* Quick Circulation Station */}
-        <div className="card" style={{ padding: '22px', backgroundColor: 'var(--bg-surface)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Barcode size={22} color="var(--color-primary)" />
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-                محطة التداول السريع (مسح الباركود)
-              </h3>
+    <div className="dashboard-layout">
+      {/* KPI Cards */}
+      <div className="kpi-grid">
+        {kpiCards.map((kpi, i) => {
+          const s = getKPIStyles(kpi.color);
+          const Icon = kpi.icon;
+          return (
+            <div className="kpi-card" key={i}>
+              <div className="kpi-card-header">
+                <div className="kpi-icon" style={{ backgroundColor: s.iconBg, color: s.iconColor }}>
+                  <Icon size={20} />
+                </div>
+                {kpi.trend && (
+                  <span className={`kpi-trend ${kpi.trendUp ? 'up' : 'down'}`}>
+                    {kpi.trendUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                    {kpi.trend}
+                  </span>
+                )}
+              </div>
+              <div className="kpi-card-body">
+                <span className="kpi-label">{kpi.label}</span>
+                <h2 className="kpi-value" style={{ color: s.valueColor }}>{kpi.value}</h2>
+                <span className="kpi-sub">{kpi.sub}</span>
+              </div>
             </div>
+          );
+        })}
+      </div>
 
-            {/* Mode switch */}
-            <div style={{ display: 'flex', backgroundColor: 'var(--bg-muted)', padding: '3px', borderRadius: 'var(--radius-md)' }}>
+      {/* Main Grid: Quick Circulation + Activity Queue + Mini Stats */}
+      <div className="dashboard-grid">
+        {/* Quick Circulation Station */}
+        <div className="dashboard-card">
+          <div className="dashboard-card-header">
+            <div className="dashboard-card-title">
+              <Barcode size={18} color="var(--color-primary)" />
+              <h3>محطة التداول السريع</h3>
+            </div>
+            <div className="mode-switcher">
               <button
                 type="button"
+                className={`mode-btn ${quickMode === 'issue' ? 'active' : ''}`}
                 onClick={() => setQuickMode('issue')}
-                style={{
-                  padding: '4px 10px',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  backgroundColor: quickMode === 'issue' ? 'var(--color-primary)' : 'transparent',
-                  color: quickMode === 'issue' ? '#FFFFFF' : 'var(--text-secondary)'
-                }}
               >
                 تسجيل إعارة
               </button>
               <button
                 type="button"
+                className={`mode-btn ${quickMode === 'return' ? 'active' : ''}`}
                 onClick={() => setQuickMode('return')}
-                style={{
-                  padding: '4px 10px',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  backgroundColor: quickMode === 'return' ? 'var(--color-primary)' : 'transparent',
-                  color: quickMode === 'return' ? '#FFFFFF' : 'var(--text-secondary)'
-                }}
               >
                 تسجيل إرجاع
               </button>
             </div>
           </div>
 
-          <form onSubmit={handleQuickSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <form onSubmit={handleQuickSubmit} className="quick-form">
             <div className="form-group" style={{ margin: 0 }}>
               <label className="form-label">
-                باركود النسخة المادية (Barcode):
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>مثال: BC-101-01</span>
+                باركود النسخة المادية
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>مثال: BC-101-01</span>
               </label>
               <input
                 type="text"
@@ -208,8 +203,8 @@ export default function StaffDashboard() {
             {quickMode === 'issue' && (
               <div className="form-group" style={{ margin: 0 }}>
                 <label className="form-label">
-                  كود العضو المستعير (Member Code):
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>مثال: MEM-2026-0042</span>
+                  كود العضو المستعير
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>مثال: MEM-2026-0042</span>
                 </label>
                 <input
                   type="text"
@@ -222,89 +217,164 @@ export default function StaffDashboard() {
               </div>
             )}
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ marginTop: '6px' }}
-            >
+            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
               <CheckCircle2 size={16} />
-              <span>{quickMode === 'issue' ? 'تأكيد وإتمام الإعارة' : 'تأكيد واستلام الإرجاع'}</span>
+              <span>{quickMode === 'issue' ? 'تأكيد الإعارة' : 'تأكيد الإرجاع'}</span>
             </button>
-          </form>
 
-          {/* Quick presets for testing */}
-          <div style={{ marginTop: '16px', padding: '10px', backgroundColor: 'var(--bg-muted)', borderRadius: 'var(--radius-md)', fontSize: '0.76rem' }}>
-            <span style={{ fontWeight: 700, display: 'block', marginBottom: '4px' }}>أكواد تجريبية سريعة:</span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.72rem', padding: '2px 8px' }}
-                onClick={() => {
-                  setBarcodeInput('BC-101-01');
-                  setMemberCodeInput('MEM-2026-0042');
-                  setQuickMode('issue');
-                }}
-              >
-                إعارة: BC-101-01 ➜ MEM-2026-0042
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.72rem', padding: '2px 8px' }}
-                onClick={() => {
-                  setBarcodeInput('BC-404-02');
-                  setQuickMode('return');
-                }}
-              >
-                إرجاع: BC-404-02
-              </button>
+            {/* Quick presets */}
+            <div className="quick-presets">
+              <span className="quick-presets-label">أكواد تجريبية:</span>
+              <div className="quick-presets-btns">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    setBarcodeInput('BC-101-01');
+                    setMemberCodeInput('MEM-2026-0042');
+                    setQuickMode('issue');
+                  }}
+                >
+                  إعارة: BC-101-01
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    setBarcodeInput('BC-404-02');
+                    setQuickMode('return');
+                  }}
+                >
+                  إرجاع: BC-404-02
+                </button>
+              </div>
             </div>
-          </div>
+          </form>
         </div>
 
-        {/* Recent Audit & Activity Stream */}
-        <div className="card" style={{ padding: '22px', backgroundColor: 'var(--bg-surface)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FileText size={20} color="var(--color-primary)" />
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-                سجل النشاط والتداول الأخير
-              </h3>
+        {/* Recent Activity Queue */}
+        <div className="dashboard-card">
+          <div className="dashboard-card-header">
+            <div className="dashboard-card-title">
+              <FileText size={18} color="var(--color-primary)" />
+              <h3>سجل النشاط الأخير</h3>
             </div>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => setActiveTab('audit')}
             >
-              عرض السجل كاملاً
+              عرض الكل
+              <ArrowUpRight size={12} />
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '310px', overflowY: 'auto' }}>
-            {auditLogs.slice(0, 5).map((log) => (
-              <div
-                key={log.id}
-                style={{
-                  padding: '10px 12px',
-                  backgroundColor: 'var(--bg-muted)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--border-subtle)',
-                  fontSize: '0.8rem'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                  <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{log.action}</span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                    {new Date(log.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+          <div className="activity-queue">
+            {auditLogs.slice(0, 6).map((log) => (
+              <div key={log.id} className="activity-item">
+                <div className="activity-dot" />
+                <div className="activity-content">
+                  <div className="activity-header">
+                    <span className="activity-action">{log.action}</span>
+                    <span className="activity-time">
+                      {new Date(log.created_at).toLocaleTimeString('ar-EG', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                  <p className="activity-details">{log.details}</p>
+                  <span className="activity-actor">بواسطة: {log.actor}</span>
                 </div>
-                <p style={{ margin: '0 0 3px 0', color: 'var(--text-secondary)' }}>{log.details}</p>
-                <span style={{ fontSize: '0.72rem', color: 'var(--color-primary)', fontWeight: 600 }}>
-                  بواسطة: {log.actor}
-                </span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Weekly Activity Mini Chart + Quick Stats */}
+        <div className="dashboard-sidebar-stack">
+          {/* Weekly Chart */}
+          <div className="dashboard-card compact">
+            <div className="dashboard-card-header">
+              <div className="dashboard-card-title">
+                <CalendarDays size={16} color="var(--color-primary)" />
+                <h3 style={{ fontSize: '0.92rem' }}>حركة الأسبوع</h3>
+              </div>
+            </div>
+            <div className="mini-chart">
+              {weekData.map((val, i) => (
+                <div key={i} className="mini-chart-col">
+                  <div className="mini-chart-bar-wrapper">
+                    <div
+                      className="mini-chart-bar"
+                      style={{
+                        height: `${(val / maxWeek) * 100}%`,
+                        backgroundColor: i === weekData.length - 1 ? 'var(--color-ai-accent)' : 'var(--color-primary)'
+                      }}
+                    />
+                  </div>
+                  <span className="mini-chart-label">{weekDays[i]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="dashboard-card compact">
+            <div className="dashboard-card-header">
+              <div className="dashboard-card-title">
+                <Users size={16} color="var(--color-primary)" />
+                <h3 style={{ fontSize: '0.92rem' }}>إحصائيات سريعة</h3>
+              </div>
+            </div>
+            <div className="quick-stats-list">
+              <div className="quick-stat-row">
+                <span className="quick-stat-label">إجمالي الأعضاء</span>
+                <span className="quick-stat-value">{members.length}</span>
+              </div>
+              <div className="quick-stat-row">
+                <span className="quick-stat-label">نسبة الإشغال</span>
+                <span className="quick-stat-value" style={{ color: 'var(--status-borrowed-text)' }}>
+                  {totalCopies > 0 ? Math.round((activeLoans.length / totalCopies) * 100) : 0}%
+                </span>
+              </div>
+              <div className="quick-stat-row">
+                <span className="quick-stat-label">متوسط الإعارات/عضو</span>
+                <span className="quick-stat-value">
+                  {members.length > 0 ? (activeLoans.length / members.length).toFixed(1) : 0}
+                </span>
+              </div>
+              <div className="quick-stat-row">
+                <span className="quick-stat-label">إجمالي الغرامات</span>
+                <span className="quick-stat-value" style={{ color: 'var(--status-overdue-text)' }}>
+                  {unpaidFinesTotal} ر.س
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="dashboard-card compact">
+            <div className="quick-action-btns">
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ flex: 1 }}
+                onClick={() => setActiveTab('circulation')}
+              >
+                <ArrowRightLeft size={15} />
+                <span>مكتب التداول</span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+                onClick={() => setActiveTab('catalog-mgmt')}
+              >
+                <PlusCircle size={15} />
+                <span>إضافة كتاب</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

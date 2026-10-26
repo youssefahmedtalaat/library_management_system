@@ -71,7 +71,7 @@ export default function CatalogPage() {
   };
 
   return (
-    <div style={{ padding: '24px 20px', maxWidth: '1360px', margin: '0 auto', width: '100%' }}>
+    <div style={{ maxWidth: '1360px', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* AI Discovery Banner */}
       <div
         className="card"
