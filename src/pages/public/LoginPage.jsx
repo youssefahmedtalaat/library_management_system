@@ -103,10 +103,9 @@ export default function LoginPage({ isModal = true, onClose }) {
   }, [isAuthenticated, currentUser, navigate, from]);
 
   const handleClose = () => {
+    navigate('/', { replace: true });
     if (onClose) {
       onClose();
-    } else {
-      navigate('/');
     }
   };
 
@@ -458,48 +457,50 @@ export default function LoginPage({ isModal = true, onClose }) {
                   />
                 </div>
 
-                <div className="login-field">
-                  <label className="login-label">
-                    {isAr ? 'كلمة المرور' : 'Password'}
-                  </label>
-                  <div className="login-password-wrapper">
+                <div className="signup-password-row">
+                  <div className="login-field">
+                    <label className="login-label">
+                      {isAr ? 'كلمة المرور' : 'Password'}
+                    </label>
+                    <div className="login-password-wrapper">
+                      <input
+                        id="signup-password"
+                        type={showSignupPassword ? 'text' : 'password'}
+                        className="login-input"
+                        placeholder={isAr ? '6 أحرف على الأقل' : 'At least 6 characters'}
+                        value={signupPassword}
+                        onChange={(e) => setSignupPassword(e.target.value)}
+                        required
+                        autoComplete="new-password"
+                        dir="ltr"
+                      />
+                      <button
+                        type="button"
+                        className="login-pw-toggle"
+                        onClick={() => setShowSignupPassword(!showSignupPassword)}
+                        aria-label="Toggle password"
+                      >
+                        {showSignupPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="login-field">
+                    <label className="login-label">
+                      {isAr ? 'تأكيد كلمة المرور' : 'Confirm Password'}
+                    </label>
                     <input
-                      id="signup-password"
-                      type={showSignupPassword ? 'text' : 'password'}
+                      id="signup-confirm-password"
+                      type="password"
                       className="login-input"
-                      placeholder={isAr ? '6 أحرف على الأقل' : 'At least 6 characters'}
-                      value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       autoComplete="new-password"
                       dir="ltr"
                     />
-                    <button
-                      type="button"
-                      className="login-pw-toggle"
-                      onClick={() => setShowSignupPassword(!showSignupPassword)}
-                      aria-label="Toggle password"
-                    >
-                      {showSignupPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
                   </div>
-                </div>
-
-                <div className="login-field">
-                  <label className="login-label">
-                    {isAr ? 'تأكيد كلمة المرور' : 'Confirm Password'}
-                  </label>
-                  <input
-                    id="signup-confirm-password"
-                    type="password"
-                    className="login-input"
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    dir="ltr"
-                  />
                 </div>
 
                 <button

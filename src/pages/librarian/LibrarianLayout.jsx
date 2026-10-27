@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   BookOpen, Sparkles, Sun, Moon, Globe, LogOut,
   BarChart3, ArrowRightLeft, BookMarked, Clock,
@@ -117,17 +117,15 @@ function DashboardSidebar({ navItems }) {
       {/* Bottom */}
       <div className="dashboard-sidebar-bottom">
         {/* Public site link (librarians can see the public site) */}
-        <a
-          href="/"
+        <Link
+          to="/"
           className="dashboard-sidebar-nav-item dashboard-sidebar-public-link"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           <ExternalLink size={17} />
           <span className="dashboard-sidebar-nav-text">
             {isAr ? 'الموقع العام' : 'Public Site'}
           </span>
-        </a>
+        </Link>
 
         {/* Bottom actions row */}
         <div className="dashboard-sidebar-actions-row">
@@ -242,6 +240,17 @@ function DashboardTopBar() {
             <Filter size={14} />
           </button>
         </div>
+
+        {/* View Public Site button */}
+        <Link
+          to="/"
+          className="btn btn-secondary btn-sm"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}
+          title={isAr ? 'عرض الواجهة العامة للمكتبة' : 'View Public Catalog Website'}
+        >
+          <ExternalLink size={14} />
+          <span>{isAr ? 'الموقع العام' : 'Public Site'}</span>
+        </Link>
 
         {/* Notifications */}
         <div className="topbar-notifications-wrapper">

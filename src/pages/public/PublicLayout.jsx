@@ -298,7 +298,7 @@ export default function PublicLayout() {
       {isLoginRoute && (
         <LoginPage
           isModal={true}
-          onClose={() => navigate(location.state?.from?.pathname || '/')}
+          onClose={() => navigate('/', { replace: true })}
         />
       )}
 

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   BookOpen, Sparkles, Sun, Moon, Globe, LogOut,
   Users, Settings, FileText, Bell, Search,
-  Filter, X, Calendar, HelpCircle
+  Filter, X, Calendar, HelpCircle, ExternalLink
 } from 'lucide-react';
 import { useLibrary } from '../../context/LibraryContext';
 import { useAuth } from '../../context/AuthContext';
@@ -100,6 +100,17 @@ function AdminSidebar() {
 
       {/* Bottom */}
       <div className="dashboard-sidebar-bottom">
+        {/* Public site link */}
+        <Link
+          to="/"
+          className="dashboard-sidebar-nav-item dashboard-sidebar-public-link"
+        >
+          <ExternalLink size={17} />
+          <span className="dashboard-sidebar-nav-text">
+            {isAr ? 'الموقع العام' : 'Public Site'}
+          </span>
+        </Link>
+
         <div className="dashboard-sidebar-actions-row">
           <button
             className="dashboard-sidebar-action-btn"
@@ -198,6 +209,17 @@ function AdminTopBar() {
             <Filter size={14} />
           </button>
         </div>
+
+        {/* View Public Site button */}
+        <Link
+          to="/"
+          className="btn btn-secondary btn-sm"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}
+          title={isAr ? 'عرض الواجهة العامة للمكتبة' : 'View Public Catalog Website'}
+        >
+          <ExternalLink size={14} />
+          <span>{isAr ? 'الموقع العام' : 'Public Site'}</span>
+        </Link>
 
         <div className="topbar-notifications-wrapper">
           <button

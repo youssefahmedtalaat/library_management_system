@@ -2120,12 +2120,13 @@ html[dir="rtl"] .select-wrapper .select-arrow {
 }
 
 .login-modal-card {
-  max-width: 490px;
-  max-height: 92vh;
-  overflow-y: auto;
+  max-width: 470px;
+  width: 100%;
+  max-height: 96vh;
+  overflow: hidden;
   animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  border-radius: 20px;
 }
 
 @keyframes modalScaleUp {
@@ -2139,6 +2140,24 @@ html[dir="rtl"] .select-wrapper .select-arrow {
   }
 }
 
+/* Compact modal paddings to prevent vertical scrollbar */
+.login-modal-card .login-logo-area {
+  padding: 13px 18px 10px;
+}
+
+.login-modal-card .login-logo-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.login-modal-card .login-logo-title {
+  font-size: 1.05rem;
+}
+
+.login-modal-card .login-logo-sub {
+  font-size: 0.66rem;
+}
+
 .login-card-top-actions {
   display: flex;
   align-items: center;
@@ -2147,8 +2166,8 @@ html[dir="rtl"] .select-wrapper .select-arrow {
 }
 
 .login-ctrl-mini-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -2166,8 +2185,8 @@ html[dir="rtl"] .select-wrapper .select-arrow {
 }
 
 .login-close-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -2188,7 +2207,7 @@ html[dir="rtl"] .select-wrapper .select-arrow {
   display: flex;
   background: var(--bg-muted);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 4px 6px 0;
+  padding: 2px 6px 0;
   gap: 4px;
 }
 
@@ -2197,12 +2216,12 @@ html[dir="rtl"] .select-wrapper .select-arrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 11px 12px;
+  gap: 6px;
+  padding: 8px 10px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
@@ -2224,33 +2243,144 @@ html[dir="rtl"] .select-wrapper .select-arrow {
 }
 
 .login-tab-badge {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: var(--radius-full);
   background: var(--color-ai-surface);
   color: var(--color-ai-accent);
   border: 1px solid var(--color-ai-border);
 }
 
+.login-modal-card .login-card-body {
+  padding: 13px 18px 12px;
+}
+
+.login-modal-card .login-heading {
+  font-size: 1.15rem;
+  margin: 0 0 2px;
+}
+
+.login-modal-card .login-subheading {
+  font-size: 0.77rem;
+  margin: 0 0 9px;
+}
+
+.login-modal-card .login-form {
+  gap: 8px;
+}
+
+.login-modal-card .login-field {
+  gap: 3px;
+}
+
+.login-modal-card .login-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.login-modal-card .login-input {
+  padding: 7px 11px;
+  font-size: 0.84rem;
+}
+
+.login-modal-card .login-submit-btn {
+  padding: 8px 16px;
+  font-size: 0.87rem;
+  margin-top: 2px;
+}
+
+.login-modal-card .login-divider {
+  margin: 9px 0 7px;
+}
+
+.login-modal-card .login-divider span {
+  font-size: 0.68rem;
+  padding: 0 8px;
+}
+
+/* Horizontal 3-column demo accounts cards inside the modal */
+.login-modal-card .login-demo-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.login-modal-card .login-demo-card {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 6px 4px;
+  gap: 3px;
+  border-radius: var(--radius-md);
+}
+
+.login-modal-card .login-demo-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-modal-card .login-demo-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+}
+
+.login-modal-card .login-demo-role {
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.login-modal-card .login-demo-name {
+  font-size: 0.67rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  color: var(--text-secondary);
+}
+
+.login-modal-card .login-demo-desc {
+  display: none;
+}
+
+.login-modal-card .login-switch-footer {
+  margin-top: 9px;
+  padding-top: 7px;
+  font-size: 0.77rem;
+}
+
 .signup-members-notice {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 6px 10px;
   background: var(--color-ai-surface);
   border: 1px solid var(--color-ai-border);
   border-radius: var(--radius-md);
-  margin-bottom: 16px;
-  font-size: 0.78rem;
+  margin-bottom: 8px;
+  font-size: 0.74rem;
   color: var(--color-ai-hover);
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 .signup-members-notice .notice-icon {
   color: var(--color-ai-accent);
   flex-shrink: 0;
   margin-top: 1px;
+}
+
+.signup-password-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .login-switch-footer {
@@ -2271,7 +2401,7 @@ html[dir="rtl"] .select-wrapper .select-arrow {
   color: var(--color-primary);
   font-weight: 700;
   cursor: pointer;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   padding: 0;
   transition: color var(--transition-fast);
 }
@@ -2279,6 +2409,12 @@ html[dir="rtl"] .select-wrapper .select-arrow {
 .login-switch-btn:hover {
   color: var(--color-primary-hover);
   text-decoration: underline;
+}
+
+@media (max-height: 520px) {
+  .login-modal-card {
+    overflow-y: auto;
+  }
 }
 
 /* ═══════════════════════════════════════════════
