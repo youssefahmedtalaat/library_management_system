@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Sparkles, BookOpen, X } from 'lucide-react';
+import { Search, Sparkles, BookOpen, X, ChevronDown } from 'lucide-react';
 import BookCard from '../../components/BookCard';
 import { useLibrary } from '../../context/LibraryContext';
 import { getCategoryLabel } from '../../data/translations';
@@ -206,42 +206,51 @@ export default function CatalogPage() {
           </div>
 
           {/* Availability filter */}
-          <div style={{ flex: '0 1 180px' }}>
-            <select
-              className="form-select"
-              value={availabilityFilter}
-              onChange={(e) => setAvailabilityFilter(e.target.value)}
-            >
-              <option value="all">{t('catalog.filterAvailabilityAll')}</option>
-              <option value="available">{t('catalog.filterAvailableNow')}</option>
-              <option value="borrowed">{t('catalog.filterBorrowedNow')}</option>
-            </select>
+          <div style={{ flex: '0 1 180px', minWidth: '160px' }}>
+            <div className="select-wrapper">
+              <select
+                className="form-select"
+                value={availabilityFilter}
+                onChange={(e) => setAvailabilityFilter(e.target.value)}
+              >
+                <option value="all">{t('catalog.filterAvailabilityAll')}</option>
+                <option value="available">{t('catalog.filterAvailableNow')}</option>
+                <option value="borrowed">{t('catalog.filterBorrowedNow')}</option>
+              </select>
+              <ChevronDown size={15} className="select-arrow" />
+            </div>
           </div>
 
           {/* Language filter */}
-          <div style={{ flex: '0 1 150px' }}>
-            <select
-              className="form-select"
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-            >
-              <option value="all">{t('catalog.filterLangAll')}</option>
-              <option value="العربية">{t('catalog.filterLangAr')}</option>
-              <option value="English">{t('catalog.filterLangEn')}</option>
-            </select>
+          <div style={{ flex: '0 1 150px', minWidth: '140px' }}>
+            <div className="select-wrapper">
+              <select
+                className="form-select"
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+              >
+                <option value="all">{t('catalog.filterLangAll')}</option>
+                <option value="العربية">{t('catalog.filterLangAr')}</option>
+                <option value="English">{t('catalog.filterLangEn')}</option>
+              </select>
+              <ChevronDown size={15} className="select-arrow" />
+            </div>
           </div>
 
           {/* Sort By */}
-          <div style={{ flex: '0 1 170px' }}>
-            <select
-              className="form-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="rating">{t('catalog.sortRating')}</option>
-              <option value="year">{t('catalog.sortYear')}</option>
-              <option value="title">{t('catalog.sortTitle')}</option>
-            </select>
+          <div style={{ flex: '0 1 180px', minWidth: '170px' }}>
+            <div className="select-wrapper">
+              <select
+                className="form-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="rating">{t('catalog.sortRating')}</option>
+                <option value="year">{t('catalog.sortYear')}</option>
+                <option value="title">{t('catalog.sortTitle')}</option>
+              </select>
+              <ChevronDown size={15} className="select-arrow" />
+            </div>
           </div>
         </div>
 
