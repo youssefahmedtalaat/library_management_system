@@ -57,21 +57,71 @@
 
 ## 🛠️ التقنيات المستخدمة (Tech Stack)
 
-- **Frontend**: React 19, Vite 8, Lucide React Icons.
+- **Frontend**: React 19, Vite 8, React Router 7, Lucide React Icons.
+- **Backend**: Node.js (LTS), Express REST API, JWT Authentication, bcrypt password hashing.
+- **Database**: MySQL (InnoDB, UTF-8 mb4, ACID Transactions for loans/returns, Foreign Keys, Indexes).
 - **Styling**: Vanilla CSS Variables (Tokens-based design system) مع دعم كامل لـ Dark Mode و RTL (العربية) و LTR (الإنجليزية).
 - **Typography**: خطوط Google Fonts المعتمدة: **Cairo** للواجهة العربية و **Plus Jakarta Sans** للإنجليزية.
+
+---
+
+## 🗄️ قاعدة البيانات (MySQL Database Architecture)
+
+مخطط علائقي كامل مبني على محرك **InnoDB** ومفصول بين السجل الببليوغرافي والنسخ المادية:
+1. `users`: هويات الدخول لجميع الأدوار (الأعضاء، أمناء المكتبة، مديرو النظام).
+2. `members`: بيانات العضوية، كود العضوية الفريد (`MEM-2026-XXXX`)، وأهلية الاستعارة.
+3. `books`: السجل الببليوغرافي الشامل للعنوان (العنوان، ISBN، سنة النشر، الوصف، التقييم).
+4. `authors` & `book_authors`: علاقة متعدد إلى متعدد للمؤلفين.
+5. `categories` & `book_categories`: تصنيفات الكتب.
+6. `book_copies`: النسخ المادية المطبوعة المستقلة مع الباركود (`BC-...`) وموقع الرف وحالة التوفر.
+7. `loans`: سجل الإعارة الفعلي مع ضمان عدم وجود أكثر من إعارة مفتوحة للنسخة نفسها.
+8. `reservations`: طابور حجز العناوين المستعارة مع حساب أسبقية الطابور تلقائياً.
+9. `fines`: الغرامات المالية لمتأخرات الإرجاع بالجنيه المصري (**EGP**).
+10. `audit_logs`: سجل رقابي غير قابل للتعديل لكافة عمليات الموظفين الحساسة.
+11. `ai_usage_events`: قياس زمن الاستجابة والنموذج لأمين المكتبة الذكي دون تسجيل نصوص استفسارات المستخدمين حفاظاً على الخصوصية.
+12. `policies`: سياسات التداول القابلة للضبط من لوحة المدير.
+
+---
+
+## 🔌 واجهات الخادم البرمجية (REST API Endpoints)
+
+جميع الاستجابات تتبع غلاف JSON القياسي الموحد (`{ data, error, meta: { requestId, timestamp } }`):
+- `POST /api/v1/auth/login`: تسجيل الدخول وإصدار رمز JWT.
+- `POST /api/v1/auth/register`: إنشاء حساب عضوية جديد.
+- `POST /api/v1/auth/logout`: إنهاء الجلسة.
+- `GET  /api/v1/auth/me`: جلب بيانات المستخدم المسجل حالياً.
+- `GET  /api/v1/books`: البحث والتصفية في العناوين مع الترقيم وحالة التوفر اللحظية.
+- `GET  /api/v1/books/:id`: تفاصيل العنوان وقائمة النسخ والباركود وموقع الرف.
+- `POST /api/v1/books`: إضافة عنوان جديد ونسخ مادية (الموظفون/المدير).
+- `POST /api/v1/loans`: تسجيل إعارة نسخة جديدة داخل معاملة ذرية (ACID Transaction).
+- `POST /api/v1/loans/:id/return`: إرجاع نسخة مع احتساب الغرامة آلياً وتحديث طابور الحجز.
+- `POST /api/v1/loans/:id/renew`: طلب تجديد الإعارة مع فحص سياسات النظام.
+- `POST /api/v1/reservations`: تسجيل حجز جديد على عنوان غير متاح.
+- `GET  /api/v1/reservations`: عرض قائمة الحجوزات وطوابير الانتظار.
+- `GET  /api/v1/fines`: استعراض الغرامات وتفاصيلها.
+- `POST /api/v1/fines/:id/settle`: تحصيل وتسوية الغرامات المالية.
+- `POST /api/v1/ai/assistant`: استكشاف الكتب الذكي والإجابة عن سياسات المكتبة مع التوثيق.
+- `GET  /api/v1/admin/audit-logs`: سجل التدقيق الرقابي للمدير.
+- `GET/PUT /api/v1/admin/policies`: إدارة سياسات التداول.
 
 ---
 
 ## 💻 التثبيت والتشغيل محلياً
 
 ```bash
-# تثبيت الحزم
+# 1. تثبيت حزم الواجهة والخلفية
 npm install
+cd server && npm install && cd ..
 
-# تشغيل خادم التطوير
+# 2. تهيئة وتغذية قاعدة بيانات MySQL
+npm run db:init
+
+# 3. تشغيل الخادم الخلفي (Backend Server على المنفذ 5001)
+npm run server
+
+# 4. تشغيل خادم الواجهة الأمامية (Vite Dev Server) في نافذة طرفية أخرى
 npm run dev
 
-# بناء النسخة الإنتاجية
+# 5. بناء النسخة الإنتاجية
 npm run build
 ```

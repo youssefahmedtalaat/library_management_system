@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { mockUsers } from '../data/mockData';
+import { api } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -15,8 +16,32 @@ export function AuthProvider({ children }) {
 
   const [authError, setAuthError] = useState('');
 
-  const login = useCallback((email, password) => {
+  const login = useCallback(async (email, password) => {
     setAuthError('');
+
+    // Try backend REST API first
+    try {
+      const data = await api.auth.login({ email, password });
+      if (data?.token && data?.user) {
+        localStorage.setItem('library_token', data.token);
+        const session = {
+          id: data.user.id,
+          email: data.user.email,
+          role: data.user.role,
+          name: data.user.fullName,
+          name_ar: data.user.fullName,
+          memberId: data.user.memberId || null,
+          staffId: data.user.role !== 'member' ? data.user.id : null,
+          avatarLetter: data.user.fullName?.charAt(0).toUpperCase() || 'U'
+        };
+        localStorage.setItem('library_session', JSON.stringify(session));
+        setCurrentUser(session);
+        return { success: true, role: data.user.role };
+      }
+    } catch {
+      // Backend error or offline, fallback to mock users
+    }
+
     const user = mockUsers.find(
       (u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password
     );
@@ -43,9 +68,36 @@ export function AuthProvider({ children }) {
     return { success: true, role: user.role };
   }, []);
 
-  const registerMember = useCallback((name, email, password) => {
+  const registerMember = useCallback(async (name, email, password) => {
     setAuthError('');
     const cleanEmail = email.trim().toLowerCase();
+
+    // Try backend REST API
+    try {
+      const data = await api.auth.register({ fullName: name, email: cleanEmail, password });
+      if (data?.token && data?.user) {
+        localStorage.setItem('library_token', data.token);
+        const session = {
+          id: data.user.id,
+          email: data.user.email,
+          role: 'member',
+          name: data.user.fullName,
+          name_ar: data.user.fullName,
+          memberId: data.user.memberId,
+          staffId: null,
+          avatarLetter: data.user.fullName?.charAt(0).toUpperCase() || 'M'
+        };
+        localStorage.setItem('library_session', JSON.stringify(session));
+        setCurrentUser(session);
+        return { success: true, role: 'member', user: session };
+      }
+    } catch (err) {
+      if (err.code === 'EMAIL_ALREADY_EXISTS') {
+        setAuthError('email_exists');
+        return { success: false, error: 'email_exists' };
+      }
+    }
+
     const existing = mockUsers.find((u) => u.email.toLowerCase() === cleanEmail);
     if (existing) {
       setAuthError('email_exists');
@@ -84,6 +136,8 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem('library_session');
+    localStorage.removeItem('library_token');
+    api.auth.logout().catch(() => {});
     setCurrentUser(null);
     setAuthError('');
   }, []);

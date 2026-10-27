@@ -13,6 +13,7 @@ import {
   initialPolicies
 } from '../data/mockData';
 import { translate } from '../data/translations';
+import { api } from '../services/api';
 
 const LibraryContext = createContext();
 
@@ -707,7 +708,7 @@ export function LibraryProvider({ children }) {
   };
 
   // AI Assistant conversational request
-  const sendAIMessage = (userInput) => {
+  const sendAIMessage = async (userInput) => {
     if (!userInput.trim()) return;
 
     const userMsg = {
@@ -719,13 +720,39 @@ export function LibraryProvider({ children }) {
     setAiMessages((prev) => [...prev, userMsg]);
     setIsAILoading(true);
 
+    try {
+      // 1. Try real backend AI endpoint (/api/v1/ai/assistant)
+      const aiResponse = await api.ai.ask({ prompt: userInput, locale: lang });
+      if (aiResponse && (aiResponse.reply || aiResponse.matchedBooks)) {
+        const matched = (aiResponse.matchedBooks || []).map((mb) => {
+          const localBook = books.find((b) => b.id === mb.id);
+          return localBook || mb;
+        });
+
+        const botMsg = {
+          id: Date.now() + 1,
+          sender: 'assistant',
+          text: aiResponse.reply || (lang === 'ar' ? 'إليك نتائج البحث في الفهرس:' : 'Here are matching books:'),
+          suggestions: lang === 'en'
+            ? ['Check copies availability', 'How do I renew my loans?', 'Recommend another book']
+            : ['هل تتوفر نسخ على الرف الآن؟', 'كيف أجدد إعارة كتاب؟', 'اقترح لي عنواناً آخر'],
+          matchedBooks: matched
+        };
+
+        setAiMessages((prev) => [...prev, botMsg]);
+        setIsAILoading(false);
+        return;
+      }
+    } catch {
+      // Backend unavailable or error: gracefully fall back to local simulated matching
+    }
+
     setTimeout(() => {
       const q = userInput.toLowerCase();
       let matched = [];
       let explanation = '';
       let suggestions = [];
 
-      // Logic simulating context retrieval and safe policy answers:
       const isEnglish = lang === 'en';
 
       if (q.includes('غموض') || q.includes('بوليسي') || q.includes('مبتدئ') || q.includes('mystery') || q.includes('detective') || q.includes('crime')) {
@@ -760,7 +787,6 @@ export function LibraryProvider({ children }) {
           ? ['How can I hold a checked-out book?', 'View my currently borrowed books']
           : ['كيف أحجز عنواناً معاراً؟', 'عرض كتبي المعارة حالياً'];
       } else {
-        // General search in books
         matched = books.filter(
           (b) =>
             b.title.toLowerCase().includes(q) ||
@@ -796,7 +822,7 @@ export function LibraryProvider({ children }) {
 
       setAiMessages((prev) => [...prev, botMsg]);
       setIsAILoading(false);
-    }, 700);
+    }, 500);
   };
 
   const openAIDrawer = (prefill) => {

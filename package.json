@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server": "node server/index.js",
+    "db:init": "node server/db/initDb.js",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"
