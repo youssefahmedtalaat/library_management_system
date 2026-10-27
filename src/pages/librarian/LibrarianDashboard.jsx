@@ -9,7 +9,8 @@ import {
   FileText,
   CalendarDays,
   ArrowUpRight,
-  Users
+  Users,
+  RotateCcw
 } from 'lucide-react';
 import { useLibrary } from '../../context/LibraryContext';
 
@@ -172,14 +173,16 @@ export default function StaffDashboard() {
                 className={`quick-mode-pill ${quickMode === 'issue' ? 'active' : ''}`}
                 onClick={() => setQuickMode('issue')}
               >
-                {t('staffDashboard.issueMode')}
+                <ArrowRightLeft size={14} />
+                <span>{t('staffDashboard.issueMode')}</span>
               </button>
               <button
                 type="button"
                 className={`quick-mode-pill ${quickMode === 'return' ? 'active' : ''}`}
                 onClick={() => setQuickMode('return')}
               >
-                {t('staffDashboard.returnMode')}
+                <RotateCcw size={14} />
+                <span>{t('staffDashboard.returnMode')}</span>
               </button>
             </div>
           </div>

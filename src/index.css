@@ -721,42 +721,111 @@ a.btn-danger:focus {
   margin: 0;
 }
 
-/* Mode Switcher */
+/* Mode Switcher & Quick Mode Pills */
+.quick-mode-pills,
 .mode-switcher {
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   background: var(--bg-muted);
-  padding: 3px;
-  border-radius: var(--radius-md);
+  padding: 4px;
+  border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
+  gap: 4px;
 }
 
+.quick-mode-pill,
 .mode-btn {
-  padding: 5px 12px;
+  padding: 6px 16px;
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-fast);
   background: transparent;
   color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
 }
 
+.quick-mode-pill:hover:not(.active),
+.mode-btn:hover:not(.active) {
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .quick-mode-pill:hover:not(.active),
+[data-theme="dark"] .mode-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.quick-mode-pill.active,
 .mode-btn.active {
   background: var(--color-primary);
   color: #FFFFFF;
-  box-shadow: var(--shadow-xs);
+  box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
 }
 
-.mode-btn:hover:not(.active) {
-  color: var(--text-primary);
-}
-
-/* Quick Form */
+/* Quick Form & Inputs */
 .quick-form {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+.quick-form-fields {
+  display: flex;
+  flex-direction: column;
   gap: 14px;
+}
+
+.quick-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quick-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.quick-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.quick-input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+html[dir="ltr"] .quick-input-icon {
+  left: 12px;
+}
+
+html[dir="rtl"] .quick-input-icon {
+  right: 12px;
+}
+
+.quick-input-wrapper .quick-input {
+  width: 100%;
+}
+
+html[dir="ltr"] .quick-input-wrapper .quick-input {
+  padding-left: 38px;
+}
+
+html[dir="rtl"] .quick-input-wrapper .quick-input {
+  padding-right: 38px;
 }
 
 .quick-presets {
