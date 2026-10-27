@@ -126,7 +126,7 @@ export default function MemberDashboard() {
             <div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block' }}>{t('memberDashboard.finesDue')}</span>
               <strong style={{ fontSize: '1.25rem', color: member.fines_due > 0 ? 'var(--status-overdue-text)' : 'var(--status-available-text)' }}>
-                {member.fines_due.toFixed(2)} {lang === 'en' ? 'SAR' : 'ر.س'}
+                {member.fines_due.toFixed(2)} {lang === 'en' ? 'EGP' : 'ج.م'}
               </strong>
             </div>
             {member.fines_due === 0 ? (
@@ -389,8 +389,8 @@ export default function MemberDashboard() {
             </h4>
             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
               {lang === 'en'
-                ? `Standard loan duration ${policies.default_loan_days} days • Max ${policies.max_borrow_limit} books • ${policies.max_renewals} renewals allowed • ${policies.fine_per_day} SAR daily overdue fine.`
-                : `مدة الإعارة ${policies.default_loan_days} يوماً • بحد أقصى ${policies.max_borrow_limit} كتب • ${policies.max_renewals} تجديدات مسموحة • غرامة التأخير ${policies.fine_per_day} ر.س / يوم.`}
+                ? `Standard loan duration ${policies.default_loan_days} days • Max ${policies.max_borrow_limit} books • ${policies.max_renewals} renewals allowed • ${policies.fine_per_day} EGP daily overdue fine.`
+                : `مدة الإعارة ${policies.default_loan_days} يوماً • بحد أقصى ${policies.max_borrow_limit} كتب • ${policies.max_renewals} تجديدات مسموحة • غرامة التأخير ${policies.fine_per_day} ج.م / يوم.`}
             </p>
           </div>
         </div>

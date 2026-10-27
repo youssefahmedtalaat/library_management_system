@@ -100,7 +100,7 @@ export default function PoliciesPage() {
             <div className="form-group" style={{ margin: 0 }}>
               <label className="form-label">
                 {lang === 'en' ? 'Daily overdue fine per item:' : 'غرامة التأخير اليومية عن كل نسخة متأخرة:'}
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}> {lang === 'en' ? 'SAR / day' : 'ر.س / يوم'}</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}> {lang === 'en' ? 'EGP / day' : 'ج.م / يوم'}</span>
               </label>
               <input
                 type="number"

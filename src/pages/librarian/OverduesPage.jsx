@@ -97,13 +97,13 @@ export default function OverduesPage() {
           <div>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 3px 0', color: 'var(--status-overdue-text)' }}>
               {lang === 'en'
-                ? `Total Outstanding Unpaid Fines: ${totalUnpaidAmount.toFixed(2)} SAR`
-                : `إجمالي الغرامات المستحقة غير المحصلة: ${totalUnpaidAmount.toFixed(2)} ر.س`}
+                ? `Total Outstanding Unpaid Fines: ${totalUnpaidAmount.toFixed(2)} EGP`
+                : `إجمالي الغرامات المستحقة غير المحصلة: ${totalUnpaidAmount.toFixed(2)} ج.م`}
             </h3>
             <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
               {lang === 'en'
-                ? `Official fine rate: ${policies.fine_per_day} SAR per day overdue after loan expiration (${policies.default_loan_days} days).`
-                : `معدل الغرامة المعتمد: ${policies.fine_per_day} ر.س عن كل يوم تأخير بعد انتهاء مدة الإعارة (${policies.default_loan_days} يوماً).`}
+                ? `Official fine rate: ${policies.fine_per_day} EGP per day overdue after loan expiration (${policies.default_loan_days} days).`
+                : `معدل الغرامة المعتمد: ${policies.fine_per_day} ج.م عن كل يوم تأخير بعد انتهاء مدة الإعارة (${policies.default_loan_days} يوماً).`}
             </p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function OverduesPage() {
                         </span>
                       </td>
                       <td style={{ fontWeight: 800, color: 'var(--status-overdue-text)' }}>
-                        {estFine.toFixed(2)} {lang === 'en' ? 'SAR' : 'ر.س'}
+                        {estFine.toFixed(2)} {lang === 'en' ? 'EGP' : 'ج.م'}
                       </td>
                       <td>
                         <button
@@ -227,7 +227,7 @@ export default function OverduesPage() {
                       <td style={{ fontFamily: 'monospace' }}>{f.member_code}</td>
                       <td>{bookTitle}</td>
                       <td style={{ fontWeight: 800, color: f.status === 'unpaid' ? 'var(--status-overdue-text)' : 'inherit' }}>
-                        {f.amount.toFixed(2)} {lang === 'en' ? 'SAR' : 'ر.س'}
+                        {f.amount.toFixed(2)} {lang === 'en' ? 'EGP' : 'ج.م'}
                       </td>
                       <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{reason}</td>
                       <td>{formatDate(f.assessed_at)}</td>

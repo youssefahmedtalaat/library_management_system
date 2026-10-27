@@ -260,7 +260,7 @@ export default function CirculationDeskPage() {
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <span>{lang === 'en' ? 'Member Code:' : 'كود العضو:'} <strong>{selectedMember.member_code}</strong></span>
                   <span>{lang === 'en' ? 'Current Active Loans:' : 'الكتب المعارة حالياً:'} <strong>{selectedMember.active_loans_count} / {policies.max_borrow_limit}</strong></span>
-                  <span>{lang === 'en' ? 'Recorded Fines:' : 'الغرامات المسجلة:'} <strong style={{ color: selectedMember.fines_due > 0 ? 'var(--status-overdue-text)' : 'inherit' }}>{selectedMember.fines_due} {lang === 'en' ? 'SAR' : 'ر.س'}</strong></span>
+                  <span>{lang === 'en' ? 'Recorded Fines:' : 'الغرامات المسجلة:'} <strong style={{ color: selectedMember.fines_due > 0 ? 'var(--status-overdue-text)' : 'inherit' }}>{selectedMember.fines_due} {lang === 'en' ? 'EGP' : 'ج.م'}</strong></span>
                 </div>
               </div>
             ) : (
@@ -374,8 +374,8 @@ export default function CirculationDeskPage() {
                     </div>
                     <span>
                       {lang === 'en'
-                        ? `An automatic fine of ${policies.fine_per_day} SAR per overdue day will be assessed and added to the member ledger.`
-                        : `سيتم احتساب غرامة تأخير تلقائية بمقدار ${policies.fine_per_day} ر.س عن كل يوم تأخير وإضافتها لسجل العضو.`}
+                        ? `An automatic fine of ${policies.fine_per_day} EGP per overdue day will be assessed and added to the member ledger.`
+                        : `سيتم احتساب غرامة تأخير تلقائية بمقدار ${policies.fine_per_day} ج.م عن كل يوم تأخير وإضافتها لسجل العضو.`}
                     </span>
                   </div>
                 )}

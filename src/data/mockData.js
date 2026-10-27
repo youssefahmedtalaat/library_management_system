@@ -497,8 +497,8 @@ export const initialFines = [
     status: 'unpaid',
     assessed_at: '2026-10-24T00:00:00Z',
     settled_at: null,
-    reason: 'تأخير إعادة نسخة (3 أيام × 5 ر.س)',
-    reason_en: 'Late return fine (3 days × 5 SAR)'
+    reason: 'تأخير إعادة نسخة (3 أيام × 5 ج.م)',
+    reason_en: 'Late return fine (3 days × 5 EGP)'
   },
   {
     id: 2,
@@ -568,8 +568,8 @@ export const initialAuditLogs = [
     entity_type: 'Fine',
     entity_id: 'FN-001',
     created_at: '2026-10-24T00:00:00Z',
-    details: 'احتساب 15 ر.س غرامة تأخير على العضو سارة المنصور',
-    details_en: 'Assessed 15 SAR overdue fine on member Sara Al-Mansoor'
+    details: 'احتساب 15 ج.م غرامة تأخير على العضو سارة المنصور',
+    details_en: 'Assessed 15 EGP overdue fine on member Sara Al-Mansoor'
   }
 ];
 

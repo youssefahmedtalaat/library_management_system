@@ -368,7 +368,7 @@ export default function StaffDashboard() {
               <div className="quick-stat-row">
                 <span className="quick-stat-label">{lang === 'en' ? 'Unpaid Fines Total' : 'إجمالي الغرامات'}</span>
                 <span className="quick-stat-value" style={{ color: 'var(--status-overdue-text)' }}>
-                  {unpaidFinesTotal} {lang === 'en' ? 'SAR' : 'ر.س'}
+                  {unpaidFinesTotal} {lang === 'en' ? 'EGP' : 'ج.م'}
                 </span>
               </div>
             </div>

@@ -504,7 +504,7 @@ export function LibraryProvider({ children }) {
         status: 'unpaid',
         assessed_at: returnDate.toISOString(),
         settled_at: null,
-        reason: `تأخير إعادة ${daysLate} يوم (${daysLate} × ${policies.fine_per_day} ر.س)`
+        reason: `تأخير إعادة ${daysLate} يوم (${daysLate} × ${policies.fine_per_day} ج.م)`
       };
       setFines((prev) => [newFine, ...prev]);
       setMembers((prev) =>
@@ -517,7 +517,7 @@ export function LibraryProvider({ children }) {
       addToast({
         type: 'warning',
         title: 'تم الإرجاع مع غرامة تأخير',
-        message: `تم استلام النسخة، وسُجلت غرامة تأخير قدرها ${fineAmount} ر.س (${daysLate} يوم تأخير)`
+        message: `تم استلام النسخة، وسُجلت غرامة تأخير قدرها ${fineAmount} ج.م (${daysLate} يوم تأخير)`
       });
     } else {
       addToast({
@@ -590,12 +590,12 @@ export function LibraryProvider({ children }) {
       )
     );
 
-    recordAudit('تسوية غرامة', 'Fine', fineId, `تحصيل وتسوية غرامة قدرها ${fine.amount} ر.س للعضو ${fine.member_name}`);
+    recordAudit('تسوية غرامة', 'Fine', fineId, `تحصيل وتسوية غرامة قدرها ${fine.amount} ج.م للعضو ${fine.member_name}`);
 
     addToast({
       type: 'success',
       title: 'تمت تسوية الغرامة',
-      message: `تم سداد الغرامة بقيمة ${fine.amount} ر.س وإعادة تنشيط العضوية إن كانت معلقة`
+      message: `تم سداد الغرامة بقيمة ${fine.amount} ج.م وإعادة تنشيط العضوية إن كانت معلقة`
     });
   };
 
@@ -754,8 +754,8 @@ export function LibraryProvider({ children }) {
           : ['هل كتاب مقدمة ابن خلدون متاح الآن؟', 'اقترح لي كتاب في تطوير الذات'];
       } else if (q.includes('سياس') || q.includes('تجديد') || q.includes('مدة') || q.includes('غرام') || q.includes('قانون') || q.includes('policy') || q.includes('renew') || q.includes('fine') || q.includes('rule')) {
         explanation = isEnglish
-          ? `Per official library policy: standard loan duration is ${policies.default_loan_days} days, with a maximum of ${policies.max_renewals} renewals provided there are no pending holds. The late return fine is ${policies.fine_per_day} SAR per overdue day.`
-          : `وفقاً للسياسة المعتمدة في المكتبة: مدة الإعارة الأساسية هي ${policies.default_loan_days} يوماً، والحد الأقصى للتجديد هو ${policies.max_renewals} مرات بشرط عدم وجود حجز نشط للعنوان. غرامة التأخير تبلغ ${policies.fine_per_day} ر.س عن كل يوم تأخير.`;
+          ? `Per official library policy: standard loan duration is ${policies.default_loan_days} days, with a maximum of ${policies.max_renewals} renewals provided there are no pending holds. The late return fine is ${policies.fine_per_day} EGP per overdue day.`
+          : `وفقاً للسياسة المعتمدة في المكتبة: مدة الإعارة الأساسية هي ${policies.default_loan_days} يوماً، والحد الأقصى للتجديد هو ${policies.max_renewals} مرات بشرط عدم وجود حجز نشط للعنوان. غرامة التأخير تبلغ ${policies.fine_per_day} ج.م عن كل يوم تأخير.`;
         suggestions = isEnglish
           ? ['How can I hold a checked-out book?', 'View my currently borrowed books']
           : ['كيف أحجز عنواناً معاراً؟', 'عرض كتبي المعارة حالياً'];
