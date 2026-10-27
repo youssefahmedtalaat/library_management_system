@@ -110,18 +110,19 @@ export default function CatalogPage() {
               width: '46px',
               height: '46px',
               borderRadius: 'var(--radius-lg)',
-              backgroundColor: 'var(--color-ai-accent)',
+              background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%)',
               color: '#FFFFFF',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0
+              flexShrink: 0,
+              boxShadow: '0 4px 12px rgba(30, 58, 138, 0.25)'
             }}
           >
             <Sparkles size={24} />
           </div>
           <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-ai-accent)', margin: '0 0 4px 0' }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-primary)', margin: '0 0 4px 0' }}>
               {t('catalog.aiBannerTitle')}
             </h2>
             <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text-secondary)' }}>

@@ -184,11 +184,11 @@ export default function StarRatingWidget({
             style={{
               fontSize: '0.82rem',
               fontWeight: 700,
-              color: '#B45309',
-              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+              color: 'var(--color-primary)',
+              backgroundColor: 'var(--color-primary-subtle)',
               padding: '3px 10px',
               borderRadius: 'var(--radius-full)',
-              border: '1px solid rgba(245, 158, 11, 0.3)'
+              border: '1px solid var(--border-subtle)'
             }}
           >
             {starLabels[currentDisplayRating] || `${currentDisplayRating} / 5`}

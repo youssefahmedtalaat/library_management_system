@@ -283,8 +283,8 @@ export default function BookDetailsModal() {
                     style={{
                       fontSize: '0.8rem',
                       fontWeight: 700,
-                      backgroundColor: 'rgba(245, 158, 11, 0.12)',
-                      color: '#B45309',
+                      backgroundColor: 'var(--color-primary-subtle)',
+                      color: 'var(--color-primary)',
                       padding: '2px 8px',
                       borderRadius: 'var(--radius-full)'
                     }}
@@ -318,7 +318,7 @@ export default function BookDetailsModal() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div style={{ textAlign: 'center', minWidth: '70px' }}>
-                    <div style={{ fontSize: '2.4rem', fontWeight: 800, color: '#B45309', lineHeight: 1 }}>
+                    <div style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--color-primary)', lineHeight: 1 }}>
                       {avgRating > 0 ? avgRating.toFixed(1) : '—'}
                     </div>
                     <div style={{ display: 'flex', gap: '2px', justifyContent: 'center', marginTop: '6px' }}>

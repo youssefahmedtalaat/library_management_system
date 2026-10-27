@@ -1,12 +1,12 @@
 :root {
-  /* Brand & AI Accents (Light Mode defaults) */
+  /* Brand & AI Accents (Light Mode defaults — Oxford & Royal Navy) */
   --color-primary: #1E3A5F;
-  --color-primary-hover: #152943;
-  --color-primary-subtle: #EEF4FA;
-  --color-ai-accent: #B45309;
-  --color-ai-hover: #92400E;
-  --color-ai-surface: #FEF3C7;
-  --color-ai-border: #FCD34D;
+  --color-primary-hover: #0F2744;
+  --color-primary-subtle: #EDF4FA;
+  --color-ai-accent: #1D4ED8;
+  --color-ai-hover: #1E40AF;
+  --color-ai-surface: #EFF6FF;
+  --color-ai-border: #BFDBFE;
 
   /* Surfaces & Typography */
   --bg-page: #FCFCFA;
@@ -19,18 +19,18 @@
   --border-subtle: #E2E8F0;
   --border-hover: #CBD5E1;
 
-  /* Semantic Circulation Status */
-  --status-available-text: #15803D;
-  --status-available-bg: #DCFCE7;
-  --status-available-border: #86EFAC;
+  /* Semantic Circulation Status (Cohesive Navy & Marine Cyan) */
+  --status-available-text: #0284C7;
+  --status-available-bg: #E0F2FE;
+  --status-available-border: #BAE6FD;
 
-  --status-borrowed-text: #1D4ED8;
+  --status-borrowed-text: #1E40AF;
   --status-borrowed-bg: #DBEAFE;
   --status-borrowed-border: #93C5FD;
 
-  --status-reserved-text: #B45309;
-  --status-reserved-bg: #FEF3C7;
-  --status-reserved-border: #FCD34D;
+  --status-reserved-text: #4338CA;
+  --status-reserved-bg: #EEF2FF;
+  --status-reserved-border: #C7D2FE;
 
   --status-overdue-text: #B91C1C;
   --status-overdue-bg: #FEE2E2;
@@ -68,19 +68,19 @@
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-item-hover: rgba(255, 255, 255, 0.06);
   --sidebar-item-active: rgba(30, 58, 95, 0.7);
-  --sidebar-accent-bg: rgba(180, 83, 9, 0.15);
+  --sidebar-accent-bg: rgba(37, 99, 235, 0.15);
   --sidebar-dropdown-bg: #1B2940;
 }
 
 [data-theme="dark"] {
-  /* Brand & AI Accents (Dark Mode) */
+  /* Brand & AI Accents (Dark Mode — Midnight & Electric Navy) */
   --color-primary: #3B82F6;
   --color-primary-hover: #2563EB;
   --color-primary-subtle: rgba(59, 130, 246, 0.15);
-  --color-ai-accent: #F59E0B;
-  --color-ai-hover: #D97706;
-  --color-ai-surface: #451A03;
-  --color-ai-border: rgba(245, 158, 11, 0.4);
+  --color-ai-accent: #60A5FA;
+  --color-ai-hover: #93C5FD;
+  --color-ai-surface: rgba(30, 58, 138, 0.28);
+  --color-ai-border: rgba(96, 165, 250, 0.35);
 
   /* Surfaces & Typography */
   --bg-page: #0F172A;
@@ -93,18 +93,18 @@
   --border-subtle: #334155;
   --border-hover: #475569;
 
-  /* Semantic Circulation Status (Dark Mode) */
-  --status-available-text: #4ADE80;
-  --status-available-bg: rgba(21, 128, 61, 0.25);
-  --status-available-border: rgba(74, 222, 128, 0.35);
+  /* Semantic Circulation Status (Dark Mode — Navy spectrum) */
+  --status-available-text: #38BDF8;
+  --status-available-bg: rgba(2, 132, 199, 0.22);
+  --status-available-border: rgba(56, 189, 248, 0.35);
 
   --status-borrowed-text: #60A5FA;
-  --status-borrowed-bg: rgba(29, 78, 216, 0.25);
+  --status-borrowed-bg: rgba(30, 64, 175, 0.25);
   --status-borrowed-border: rgba(96, 165, 250, 0.35);
 
-  --status-reserved-text: #FBBF24;
-  --status-reserved-bg: rgba(180, 83, 9, 0.25);
-  --status-reserved-border: rgba(251, 191, 36, 0.35);
+  --status-reserved-text: #818CF8;
+  --status-reserved-bg: rgba(79, 70, 229, 0.22);
+  --status-reserved-border: rgba(129, 140, 248, 0.35);
 
   --status-overdue-text: #F87171;
   --status-overdue-bg: rgba(185, 28, 28, 0.25);
@@ -125,7 +125,7 @@
   --sidebar-border: rgba(255, 255, 255, 0.06);
   --sidebar-item-hover: rgba(255, 255, 255, 0.05);
   --sidebar-item-active: rgba(59, 130, 246, 0.25);
-  --sidebar-accent-bg: rgba(245, 158, 11, 0.12);
+  --sidebar-accent-bg: rgba(59, 130, 246, 0.18);
   --sidebar-dropdown-bg: #131E33;
 }
 
@@ -289,7 +289,7 @@ button, input, select, textarea {
 
 .btn-primary,
 a.btn-primary {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, #1E3A5F 0%, #0F2744 100%);
   color: #FFFFFF;
 }
 
@@ -297,9 +297,9 @@ a.btn-primary {
 .btn-primary:focus,
 a.btn-primary:hover,
 a.btn-primary:focus {
-  background-color: var(--color-primary-hover);
+  background: linear-gradient(135deg, #152943 0%, #0A1B30 100%);
   color: #FFFFFF;
-  box-shadow: 0 4px 10px rgba(30, 58, 95, 0.25);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
 }
 
 .btn-secondary,
@@ -335,19 +335,20 @@ a.btn-outline:focus {
 
 .btn-ai,
 a.btn-ai {
-  background: linear-gradient(135deg, var(--color-ai-accent), #D97706);
+  background: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%);
   color: #FFFFFF;
   border-color: transparent;
-  box-shadow: 0 4px 14px rgba(180, 83, 9, 0.25);
+  box-shadow: 0 4px 14px rgba(30, 64, 175, 0.25);
 }
 
 .btn-ai:hover:not(:disabled),
 .btn-ai:focus,
 a.btn-ai:hover,
 a.btn-ai:focus {
-  background: linear-gradient(135deg, var(--color-ai-hover), var(--color-ai-accent));
+  background: linear-gradient(135deg, #172554 0%, #1D4ED8 100%);
   color: #FFFFFF;
-  box-shadow: 0 6px 18px rgba(180, 83, 9, 0.35);
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(30, 64, 175, 0.35);
   transform: translateY(-1px);
 }
 

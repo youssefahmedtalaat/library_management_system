@@ -78,8 +78,8 @@ export default function BookCard({ book }) {
             left: isRTL ? '12px' : 'auto',
             right: isRTL ? 'auto' : '12px',
             zIndex: 2,
-            backgroundColor: 'rgba(15, 23, 42, 0.75)',
-            color: '#FCD34D',
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+            color: '#FFFFFF',
             padding: '3px 9px',
             borderRadius: 'var(--radius-full)',
             display: 'flex',
@@ -88,20 +88,22 @@ export default function BookCard({ book }) {
             fontSize: '0.78rem',
             fontWeight: 700,
             backdropFilter: 'blur(6px)',
-            border: '1px solid rgba(252, 211, 77, 0.35)',
+            border: '1px solid rgba(255, 255, 255, 0.18)',
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'scale(1.08)';
-            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.95)';
+            e.currentTarget.style.borderColor = 'rgba(147, 197, 253, 0.4)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1.0)';
-            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.75)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.85)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.18)';
           }}
         >
-          <Star size={13} fill="#FCD34D" color="#FCD34D" />
+          <Star size={13} fill="#FBBF24" color="#FBBF24" />
           <span>{book.rating}</span>
           {Boolean(book.ratings_count) && (
             <span style={{ fontSize: '0.72rem', opacity: 0.85, fontWeight: 500 }}>
