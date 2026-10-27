@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 import {
   initialBooks,
   initialBookCopies,
@@ -14,7 +16,24 @@ import { translate } from '../data/translations';
 
 const LibraryContext = createContext();
 
+const tabRoutes = {
+  circulation: '/librarian/circulation',
+  'catalog-mgmt': '/librarian/catalog',
+  reservations: '/librarian/reservations',
+  overdues: '/librarian/overdues',
+  dashboard: '/librarian',
+  'staff-mgmt': '/admin',
+  policies: '/admin/policies',
+  audit: '/admin/audit',
+  catalog: '/',
+  'my-loans': '/my-loans'
+};
+
 export function LibraryProvider({ children }) {
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const currentUser = auth?.currentUser;
+
   // Theme state: light or dark
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('library_theme') || 'light';
@@ -25,14 +44,22 @@ export function LibraryProvider({ children }) {
     return localStorage.getItem('library_lang') || 'ar';
   });
 
-  // Current active role: 'member' | 'staff' | 'admin'
-  const [currentRole, setCurrentRole] = useState('member');
+  // Current active role sourced from authentication (default to 'member' for public view)
+  const currentRole = currentUser?.role || 'member';
+  const setCurrentRole = useCallback(() => {}, []);
 
-  // Active navigation tab
-  const [activeTab, setActiveTab] = useState('catalog');
+  // Current logged in member ID
+  const currentMemberId = currentUser?.memberId || 1;
 
-  // Current logged in member (defaulting to Ahmed for member view)
-  const [currentMemberId, setCurrentMemberId] = useState(1);
+  // Active navigation tab with route dispatcher
+  const [activeTab, setActiveTabState] = useState('catalog');
+
+  const setActiveTab = useCallback((tab) => {
+    setActiveTabState(tab);
+    if (tabRoutes[tab]) {
+      navigate(tabRoutes[tab]);
+    }
+  }, [navigate]);
 
   // Entities
   const [books, setBooks] = useState(initialBooks);
@@ -172,6 +199,18 @@ export function LibraryProvider({ children }) {
 
   // Action: Reserve book
   const reserveBook = (bookId) => {
+    if (!auth?.isAuthenticated) {
+      addToast({
+        type: 'warning',
+        title: lang === 'en' ? 'Sign In Required' : 'تسجيل الدخول مطلوب',
+        message: lang === 'en'
+          ? 'Please log in to your account first to place a hold on this book.'
+          : 'يرجى تسجيل الدخول أولاً لتتمكن من حجز الكتاب أو الانضمام لقائمة الانتظار.'
+      });
+      navigate('/login');
+      return { success: false, requireAuth: true };
+    }
+
     const book = books.find((b) => b.id === bookId);
     if (!book) return { success: false, message: 'الكتاب غير موجود' };
 

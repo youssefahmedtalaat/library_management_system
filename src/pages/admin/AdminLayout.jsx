@@ -1,0 +1,272 @@
+import React, { useState } from 'react';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import {
+  BookOpen, Sparkles, Sun, Moon, Globe, LogOut,
+  Users, Settings, FileText, Bell, Search,
+  Filter, X, Calendar, HelpCircle
+} from 'lucide-react';
+import { useLibrary } from '../../context/LibraryContext';
+import { useAuth } from '../../context/AuthContext';
+import AIAssistantDrawer from '../../components/AIAssistantDrawer';
+import BookDetailsModal from '../../components/BookDetailsModal';
+import ToastContainer from '../../components/ToastContainer';
+
+const adminNavItems = [
+  { to: '/admin', label: 'إدارة الموظفين', labelEn: 'Staff Management', icon: Users, end: true },
+  { to: '/admin/policies', label: 'السياسات', labelEn: 'Policies', icon: Settings },
+  { to: '/admin/audit', label: 'سجل التدقيق', labelEn: 'Audit Log', icon: FileText },
+];
+
+function AdminSidebar() {
+  const { lang, toggleTheme, toggleLang, theme, openAIDrawer } = useLibrary();
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  const isAr = lang === 'ar';
+  const accentColor = '#F59E0B';
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
+    <aside className="dashboard-sidebar">
+      {/* Logo */}
+      <div className="dashboard-sidebar-header">
+        <div className="dashboard-sidebar-logo">
+          <div className="dashboard-sidebar-logo-icon" style={{ background: `${accentColor}20`, color: accentColor }}>
+            <BookOpen size={20} />
+          </div>
+          <div className="dashboard-sidebar-logo-text">
+            <span className="dashboard-sidebar-logo-title">{isAr ? 'المكتبة الذكية' : 'Smart Library'}</span>
+            <span className="dashboard-sidebar-logo-version">LMS 2026</span>
+          </div>
+        </div>
+      </div>
+
+      {/* User Card */}
+      <div className="dashboard-sidebar-user-card" style={{ borderColor: `${accentColor}30` }}>
+        <div className="dashboard-sidebar-user-avatar" style={{ background: `${accentColor}20`, color: accentColor }}>
+          {currentUser?.avatarLetter || 'H'}
+        </div>
+        <div className="dashboard-sidebar-user-info">
+          <span className="dashboard-sidebar-user-name">
+            {isAr ? currentUser?.name_ar : currentUser?.name}
+          </span>
+          <span className="dashboard-sidebar-user-role" style={{ color: accentColor }}>
+            {isAr ? 'مدير النظام' : 'System Admin'}
+          </span>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="dashboard-sidebar-nav">
+        <span className="dashboard-sidebar-nav-label">
+          {isAr ? 'القائمة الرئيسية' : 'Main Menu'}
+        </span>
+        {adminNavItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                `dashboard-sidebar-nav-item ${isActive ? 'active' : ''}`
+              }
+              style={({ isActive }) =>
+                isActive ? { background: accentColor, color: '#fff' } : {}
+              }
+            >
+              <Icon size={17} />
+              <span className="dashboard-sidebar-nav-text">
+                {isAr ? item.label : item.labelEn}
+              </span>
+            </NavLink>
+          );
+        })}
+      </nav>
+
+      {/* Tools */}
+      <div className="dashboard-sidebar-section">
+        <span className="dashboard-sidebar-nav-label">
+          {isAr ? 'الأدوات' : 'Tools'}
+        </span>
+        <button className="dashboard-sidebar-nav-item dashboard-ai-btn" onClick={openAIDrawer}>
+          <Sparkles size={17} />
+          <span className="dashboard-sidebar-nav-text">
+            {isAr ? 'المساعد الذكي' : 'AI Assistant'}
+          </span>
+        </button>
+      </div>
+
+      <div className="dashboard-sidebar-spacer" />
+
+      {/* Bottom */}
+      <div className="dashboard-sidebar-bottom">
+        <div className="dashboard-sidebar-actions-row">
+          <button
+            className="dashboard-sidebar-action-btn"
+            onClick={toggleTheme}
+            title={isAr ? 'تبديل السمة' : 'Toggle theme'}
+          >
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
+          <button
+            className="dashboard-sidebar-action-btn"
+            onClick={toggleLang}
+            title={isAr ? 'Switch to English' : 'التحويل للعربية'}
+          >
+            <Globe size={16} />
+          </button>
+          <button className="dashboard-sidebar-action-btn" title={isAr ? 'المساعدة' : 'Help'}>
+            <HelpCircle size={16} />
+          </button>
+          <button
+            id="admin-logout-btn"
+            className="dashboard-sidebar-action-btn dashboard-logout-btn"
+            onClick={handleLogout}
+            title={isAr ? 'تسجيل الخروج' : 'Logout'}
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function AdminTopBar() {
+  const { lang } = useLibrary();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const isAr = lang === 'ar';
+
+  const notifications = [
+    {
+      id: 1,
+      title: isAr ? 'تقرير الأداء الشهري' : 'Monthly Performance Report',
+      text: isAr ? 'تقرير أكتوبر جاهز للمراجعة.' : 'October report is ready for review.',
+      time: isAr ? 'منذ ساعة' : '1h ago',
+      type: 'info',
+      unread: true
+    },
+    {
+      id: 2,
+      title: isAr ? 'صلاحيات موظف جديد' : 'New Staff Permissions',
+      text: isAr ? 'طلب إضافة صلاحيات لمشرفة الفهرسة.' : 'Permission request pending for new cataloger.',
+      time: isAr ? 'منذ 3 ساعات' : '3h ago',
+      type: 'warning',
+      unread: true
+    }
+  ];
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
+
+  const getDateStr = () => {
+    const now = new Date();
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return now.toLocaleDateString(isAr ? 'ar-EG' : 'en-US', opts);
+  };
+
+  return (
+    <header className="topbar">
+      <div className="topbar-left">
+        <div className="topbar-title-group">
+          <h1 className="topbar-title">
+            {isAr ? 'لوحة الإدارة' : 'Admin Dashboard'}
+          </h1>
+          <span className="topbar-date">
+            <Calendar size={13} />
+            {getDateStr()}
+          </span>
+        </div>
+      </div>
+
+      <div className="topbar-right">
+        <div className="topbar-search">
+          <Search size={16} className="topbar-search-icon" />
+          <input
+            type="text"
+            className="topbar-search-input"
+            placeholder={isAr ? 'ابحث في السجلات...' : 'Search records...'}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className="topbar-search-clear" onClick={() => setSearchQuery('')}>
+              <X size={14} />
+            </button>
+          )}
+          <button className="topbar-search-filter">
+            <Filter size={14} />
+          </button>
+        </div>
+
+        <div className="topbar-notifications-wrapper">
+          <button
+            className={`topbar-icon-btn ${showNotifications ? 'active' : ''}`}
+            onClick={() => setShowNotifications(!showNotifications)}
+            aria-label={isAr ? 'التنبيهات' : 'Notifications'}
+          >
+            <Bell size={19} />
+            {unreadCount > 0 && (
+              <span className="topbar-notification-dot">{unreadCount}</span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <>
+              <div className="topbar-overlay" onClick={() => setShowNotifications(false)} />
+              <div className="topbar-notifications-dropdown">
+                <div className="topbar-notifications-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Bell size={15} color="var(--color-primary)" />
+                    <span className="topbar-notifications-title">
+                      {isAr ? 'الإشعارات' : 'Notifications'}
+                    </span>
+                  </div>
+                  <span className="badge badge-ai" style={{ fontSize: '0.7rem' }}>
+                    {unreadCount} {isAr ? 'جديدة' : 'new'}
+                  </span>
+                </div>
+                <div className="topbar-notifications-list">
+                  {notifications.map((n) => (
+                    <div key={n.id} className={`topbar-notification-item ${n.unread ? 'unread' : ''}`}>
+                      <div className={`topbar-notification-indicator ${n.type}`} />
+                      <div className="topbar-notification-content">
+                        <div className="topbar-notification-row">
+                          <strong>{n.title}</strong>
+                          <span className="topbar-notification-time">{n.time}</span>
+                        </div>
+                        <p className="topbar-notification-text">{n.text}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default function AdminLayout() {
+  return (
+    <div className="app-layout">
+      <AdminSidebar />
+      <div className="app-main">
+        <AdminTopBar />
+        <main className="main-content">
+          <div className="page-container">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+      <AIAssistantDrawer />
+      <ToastContainer />
+    </div>
+  );
+}

@@ -625,6 +625,42 @@ export const initialPolicies = {
   enable_ai_librarian: true
 };
 
+// ─── Mock Users (Authentication) ───────────────────────────────────────────
+// These are the login credentials for all three roles.
+// In production this would come from a real backend.
+export const mockUsers = [
+  {
+    id: 'USR-001',
+    email: 'ahmed@library.sa',
+    password: 'member123',
+    role: 'member',
+    memberId: 1,
+    name: 'Ahmed Mahmoud Al-Tamimi',
+    name_ar: 'أحمد محمود التميمي',
+    avatarLetter: 'A'
+  },
+  {
+    id: 'USR-002',
+    email: 'sulaiman@library.sa',
+    password: 'librarian123',
+    role: 'librarian',
+    staffId: 2,
+    name: 'Sulaiman Al-Abdali',
+    name_ar: 'سليمان العبدلي',
+    avatarLetter: 'S'
+  },
+  {
+    id: 'USR-003',
+    email: 'hesham@library.sa',
+    password: 'admin123',
+    role: 'admin',
+    staffId: 1,
+    name: 'Dr. Hesham Al-Qasimi',
+    name_ar: 'د. هشام القاسمي',
+    avatarLetter: 'H'
+  }
+];
+
 // Bilingual access helpers
 export function getBookTitle(book, lang = 'ar') {
   if (!book) return '';

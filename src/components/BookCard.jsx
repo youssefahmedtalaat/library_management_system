@@ -221,17 +221,15 @@ export default function BookCard({ book }) {
             <span>{lang === 'en' ? 'View Copies' : 'عرض النسخ'}</span>
           </button>
 
-          {currentRole === 'member' && (
-            <button
-              type="button"
-              className={isAvailable ? 'btn btn-primary btn-sm' : 'btn btn-ai btn-sm'}
-              style={{ flex: 1 }}
-              onClick={() => reserveBook(book.id)}
-            >
-              <BookmarkCheck size={14} />
-              <span>{isAvailable ? (lang === 'en' ? 'Place Hold' : 'حجز مسبق') : (lang === 'en' ? 'Join Queue' : 'انضم للطابور')}</span>
-            </button>
-          )}
+          <button
+            type="button"
+            className={isAvailable ? 'btn btn-primary btn-sm' : 'btn btn-ai btn-sm'}
+            style={{ flex: 1 }}
+            onClick={() => reserveBook(book.id)}
+          >
+            <BookmarkCheck size={14} />
+            <span>{isAvailable ? (lang === 'en' ? 'Place Hold' : 'حجز مسبق') : (lang === 'en' ? 'Join Queue' : 'انضم للطابور')}</span>
+          </button>
         </div>
       </div>
     </div>

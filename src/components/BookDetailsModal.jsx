@@ -263,16 +263,14 @@ export default function BookDetailsModal() {
             <button type="button" className="btn btn-secondary" onClick={closeBookModal}>
               {t('modal.close')}
             </button>
-            {currentRole === 'member' && (
-              <button
-                type="button"
-                className={selectedBook.available_copies > 0 ? 'btn btn-primary' : 'btn btn-ai'}
-                onClick={handleReserve}
-              >
-                <BookmarkCheck size={16} />
-                <span>{selectedBook.available_copies > 0 ? t('modal.holdForPickup') : t('modal.joinWaitlist')}</span>
-              </button>
-            )}
+            <button
+              type="button"
+              className={selectedBook.available_copies > 0 ? 'btn btn-primary' : 'btn btn-ai'}
+              onClick={handleReserve}
+            >
+              <BookmarkCheck size={16} />
+              <span>{selectedBook.available_copies > 0 ? t('modal.holdForPickup') : t('modal.joinWaitlist')}</span>
+            </button>
           </div>
         </div>
       </div>
