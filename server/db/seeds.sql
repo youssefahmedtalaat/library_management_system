@@ -145,3 +145,23 @@ INSERT INTO audit_logs (id, actor_user_id, action, entity_type, entity_id, detai
   (2, 2, 'تجديد إعارة', 'Loan', '2', '{"renewal_count": 1, "new_due_at": "2026-11-04"}', '2026-10-21 11:30:00'),
   (3, 1, 'تحديث سياسات التداول', 'Policy', 'max_borrow_limit', '{"old": 5, "new": 3}', '2026-10-22 11:00:00')
 ON DUPLICATE KEY UPDATE action = VALUES(action);
+
+-- 12. Initial Book Ratings & Reviews
+INSERT INTO book_ratings (book_id, user_id, rating, review, created_at) VALUES
+  (1, 4, 5, 'مرجع تأسيسي عظيم لا غنى عنه لأي باحث في فلسفة التاريخ وعلم الاجتماع.', '2026-10-15 14:00:00'),
+  (1, 5, 5, 'تحفة فكرية رائدة، أسلوب ابن خلدون سابق لعصره بقرون.', '2026-10-20 11:20:00'),
+  (2, 4, 5, 'المرجع الأشمل والأكثر تنظيماً في مفاهيم الذكاء الاصطناعي وخوارزميات البحث.', '2026-10-18 16:30:00'),
+  (2, 6, 5, 'The best textbook on modern AI and intelligent agents.', '2026-10-22 09:15:00'),
+  (3, 5, 5, 'رواية مؤثرة جداً تبكيك وتبهرك في آن واحد، قلم رضوى عاشور عبقري.', '2026-10-19 18:40:00'),
+  (4, 4, 5, 'كتاب غير مساري المهني كمطور برمجيات تماماً، قواعد ضرورية لكل مبرمج.', '2026-10-12 10:10:00'),
+  (4, 6, 4, 'Practical and timeless principles for software craft.', '2026-10-21 15:00:00'),
+  (5, 5, 5, 'حبكة الجريمة المغلقة من أروع ما قرأت في أدب الغموض الكلاسيكي.', '2026-10-23 20:00:00'),
+  (6, 4, 5, 'كتاب عملي غير عاداتي اليومية نحو الأفضل، أفكار الـ 1% مؤثرة ومجربة.', '2026-10-17 13:00:00'),
+  (7, 5, 5, 'رمزية عالية وإنسانية عميقة تسبر أغوار اللجوء والبحث عن الكرامة.', '2026-10-24 17:30:00'),
+  (8, 4, 5, 'The holy grail for distributed systems, replication, and database engines.', '2026-10-14 12:00:00')
+ON DUPLICATE KEY UPDATE rating = VALUES(rating), review = VALUES(review);
+
+-- Sync initial ratings_count
+UPDATE books b
+SET ratings_count = (SELECT COUNT(id) FROM book_ratings WHERE book_id = b.id);
+

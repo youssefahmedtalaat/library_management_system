@@ -23,7 +23,7 @@ export async function listBooks({ q, category, availability, page = 1, limit = 1
   const sql = `
     SELECT
       b.id, b.isbn, b.title, b.publication_year, b.language,
-      b.description, b.cover_url, b.rating, b.status,
+      b.description, b.cover_url, b.rating, COALESCE(b.ratings_count, 0) AS ratings_count, b.status,
       GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS author_name,
       GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') AS category_name,
       COALESCE(copies_agg.total_copies, 0) AS total_copies,
@@ -77,7 +77,8 @@ export async function listBooks({ q, category, availability, page = 1, limit = 1
       ...r,
       total_copies: Number(r.total_copies),
       available_copies: Number(r.available_copies),
-      rating: Number(r.rating)
+      rating: Number(r.rating),
+      ratings_count: Number(r.ratings_count || 0)
     })),
     pagination: {
       total,
@@ -92,7 +93,7 @@ export async function getBookById(id) {
   const books = await query(
     `SELECT
       b.id, b.isbn, b.title, b.publication_year, b.language,
-      b.description, b.cover_url, b.rating, b.status,
+      b.description, b.cover_url, b.rating, COALESCE(b.ratings_count, 0) AS ratings_count, b.status,
       GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS author_name,
       GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') AS category_name
      FROM books b
@@ -127,6 +128,7 @@ export async function getBookById(id) {
   return {
     ...book,
     rating: Number(book.rating),
+    ratings_count: Number(book.ratings_count || 0),
     total_copies: copies.length,
     available_copies: availableCopies,
     shelf_location: copies[0]?.shelf_location || 'General Stacks',
@@ -229,4 +231,127 @@ export async function getAllCategories() {
 
 export async function getAllAuthors() {
   return await query('SELECT id, name FROM authors ORDER BY name ASC');
+}
+
+/**
+ * Submit or update a rating and review for a book
+ */
+export async function rateBook(bookId, userId, ratingVal, reviewText, actorName = 'User') {
+  const rating = parseInt(ratingVal, 10);
+  if (isNaN(rating) || rating < 1 || rating > 5) {
+    const err = new Error('Rating must be an integer between 1 and 5');
+    err.status = 400;
+    err.code = 'INVALID_RATING';
+    throw err;
+  }
+
+  return await withTransaction(async (conn) => {
+    // 1. Verify book exists
+    const [books] = await conn.query('SELECT id, title FROM books WHERE id = ? FOR UPDATE', [bookId]);
+    if (books.length === 0) {
+      const err = new Error('Book not found');
+      err.status = 404;
+      err.code = 'BOOK_NOT_FOUND';
+      throw err;
+    }
+
+    const cleanReview = reviewText && reviewText.trim() ? reviewText.trim() : null;
+
+    // 2. UPSERT rating
+    await conn.query(
+      `INSERT INTO book_ratings (book_id, user_id, rating, review, updated_at)
+       VALUES (?, ?, ?, ?, NOW())
+       ON DUPLICATE KEY UPDATE rating = VALUES(rating), review = VALUES(review), updated_at = NOW()`,
+      [bookId, userId, rating, cleanReview]
+    );
+
+    // 3. Recalculate average rating & total count
+    const [aggResult] = await conn.query(
+      `SELECT ROUND(AVG(rating), 2) AS avg_rating, COUNT(id) AS total_count
+       FROM book_ratings
+       WHERE book_id = ?`,
+      [bookId]
+    );
+
+    const newAvg = parseFloat(aggResult[0]?.avg_rating || rating);
+    const newCount = parseInt(aggResult[0]?.total_count || 1, 10);
+
+    // 4. Update cached rating on books table
+    await conn.query(
+      'UPDATE books SET rating = ?, ratings_count = ? WHERE id = ?',
+      [newAvg, newCount, bookId]
+    );
+
+    // 5. Log audit
+    await recordAuditLog(userId, 'تقييم كتاب', 'Book', bookId, {
+      rating,
+      book_title: books[0].title,
+      actor_name: actorName
+    });
+
+    return {
+      bookId: parseInt(bookId, 10),
+      averageRating: newAvg,
+      ratingsCount: newCount,
+      userRating: rating,
+      review: cleanReview
+    };
+  });
+}
+
+/**
+ * Get aggregate breakdown and recent reviews for a book
+ */
+export async function getBookRatings(bookId, currentUserId = null) {
+  const reviews = await query(
+    `SELECT r.id, r.rating, r.review, r.created_at, r.updated_at,
+            u.id AS user_id, u.full_name AS user_name, u.role AS user_role
+     FROM book_ratings r
+     JOIN users u ON r.user_id = u.id
+     WHERE r.book_id = ?
+     ORDER BY r.updated_at DESC
+     LIMIT 25`,
+    [bookId]
+  );
+
+  const [agg] = await query(
+    `SELECT
+       COUNT(id) AS total_ratings,
+       ROUND(AVG(rating), 2) AS average_rating,
+       SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) AS count_5,
+       SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) AS count_4,
+       SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) AS count_3,
+       SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) AS count_2,
+       SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS count_1
+     FROM book_ratings
+     WHERE book_id = ?`,
+    [bookId]
+  );
+
+  let myRating = null;
+  if (currentUserId) {
+    const userRatingRow = reviews.find(r => r.user_id === currentUserId);
+    if (userRatingRow) {
+      myRating = {
+        rating: userRatingRow.rating,
+        review: userRatingRow.review,
+        updatedAt: userRatingRow.updated_at
+      };
+    }
+  }
+
+  return {
+    bookId: parseInt(bookId, 10),
+    averageRating: parseFloat(agg?.average_rating || 0),
+    totalRatings: parseInt(agg?.total_ratings || 0, 10),
+    distribution: {
+      5: parseInt(agg?.count_5 || 0, 10),
+      4: parseInt(agg?.count_4 || 0, 10),
+      3: parseInt(agg?.count_3 || 0, 10),
+      2: parseInt(agg?.count_2 || 0, 10),
+      1: parseInt(agg?.count_1 || 0, 10)
+    },
+    myRating,
+    reviews
+  };
 }

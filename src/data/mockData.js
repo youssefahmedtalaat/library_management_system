@@ -28,6 +28,7 @@ export const initialBooks = [
     total_copies: 4,
     available_copies: 2,
     rating: 4.9,
+    ratings_count: 2,
     match_keywords: ['تاريخ', 'علم اجتماع', 'حضارة', 'فلسفة', 'كلاسيكيات عربية', 'سياسة', 'history', 'sociology', 'ibn khaldun']
   },
   {
@@ -57,6 +58,7 @@ export const initialBooks = [
     total_copies: 5,
     available_copies: 3,
     rating: 4.8,
+    ratings_count: 1,
     match_keywords: ['ذكاء اصطناعي', 'تعلم الآلة', 'برمجة', 'حاسوب', 'خوارزميات', 'روبوتات', 'ai', 'machine learning', 'algorithms']
   },
   {
@@ -86,6 +88,7 @@ export const initialBooks = [
     total_copies: 3,
     available_copies: 0,
     rating: 4.9,
+    ratings_count: 1,
     match_keywords: ['رواية', 'أدب', 'تاريخ', 'الأندلس', 'غرناطة', 'قصة مشوقة', 'novel', 'andalusia', 'literature']
   },
   {
@@ -115,6 +118,7 @@ export const initialBooks = [
     total_copies: 4,
     available_copies: 1,
     rating: 4.7,
+    ratings_count: 1,
     match_keywords: ['برمجة', 'كود', 'software', 'clean code', 'هندسة البرمجيات', 'تطوير', 'agile', 'refactoring']
   },
   {
@@ -144,6 +148,7 @@ export const initialBooks = [
     total_copies: 3,
     available_copies: 2,
     rating: 4.6,
+    ratings_count: 1,
     match_keywords: ['قصة غموض قصيرة للمبتدئين', 'غموض', 'بوليسي', 'جريمة', 'تحقيق', 'إثارة', 'mystery', 'detective', 'crime']
   },
   {
@@ -173,6 +178,7 @@ export const initialBooks = [
     total_copies: 6,
     available_copies: 4,
     rating: 4.9,
+    ratings_count: 1,
     match_keywords: ['تطوير الذات', 'عادات', 'إنتاجية', 'نجاح', 'إدارة الوقت', 'علم نفس', 'habits', 'productivity', 'self help']
   },
   {
@@ -202,6 +208,7 @@ export const initialBooks = [
     total_copies: 4,
     available_copies: 3,
     rating: 4.8,
+    ratings_count: 1,
     match_keywords: ['أدب', 'رواية قصيرة', 'فلسطين', 'غسان كنفاني', 'دراما', 'literature', 'novella', 'kanafani']
   },
   {
@@ -231,6 +238,7 @@ export const initialBooks = [
     total_copies: 3,
     available_copies: 1,
     rating: 4.95,
+    ratings_count: 1,
     match_keywords: ['قواعد بيانات', 'database', 'distributed systems', 'architecture', 'mysql', 'بيانات', 'nosql', 'storage engines']
   }
 ];

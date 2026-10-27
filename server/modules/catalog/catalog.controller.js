@@ -71,3 +71,42 @@ export async function getAuthors(_req, res, next) {
     next(err);
   }
 }
+
+export async function submitRating(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { rating, review } = req.body;
+
+    if (rating === undefined || rating === null) {
+      return errorResponse(res, 'Rating is required', 'VALIDATION_ERROR', 400);
+    }
+
+    const ratingVal = Number(rating);
+    if (!Number.isInteger(ratingVal) || ratingVal < 1 || ratingVal > 5) {
+      return errorResponse(res, 'Rating must be an integer between 1 and 5', 'VALIDATION_ERROR', 400);
+    }
+
+    const result = await catalogService.rateBook(
+      id,
+      req.user.id,
+      ratingVal,
+      review || null,
+      req.user.full_name
+    );
+
+    return successResponse(res, result, 200, { message: 'Rating submitted successfully' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getRatings(req, res, next) {
+  try {
+    const { id } = req.params;
+    const currentUserId = req.user?.id || null;
+    const result = await catalogService.getBookRatings(id, currentUserId);
+    return successResponse(res, result);
+  } catch (err) {
+    next(err);
+  }
+}

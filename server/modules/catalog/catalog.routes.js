@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as catalogController from './catalog.controller.js';
-import { authenticateToken, requireRole } from '../../middlewares/auth.js';
+import { authenticateToken, optionalAuthenticate, requireRole } from '../../middlewares/auth.js';
 
 const router = Router();
 
@@ -13,6 +13,11 @@ const router = Router();
 router.get('/', catalogController.getBooks);
 router.get('/categories', catalogController.getCategories);
 router.get('/authors', catalogController.getAuthors);
+
+// Ratings endpoints (specific routes before /:id generic handler if desired, or :id/ratings is distinct)
+router.get('/:id/ratings', optionalAuthenticate, catalogController.getRatings);
+router.post('/:id/ratings', authenticateToken, catalogController.submitRating);
+
 router.get('/:id', catalogController.getBook);
 
 // Staff/Admin only routes for catalog modification

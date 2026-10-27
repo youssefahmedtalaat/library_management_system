@@ -139,6 +139,37 @@ export function LibraryProvider({ children }) {
     }
   }, [currentUser]);
 
+  // Synchronize book ratings and counts with backend API
+  useEffect(() => {
+    let isMounted = true;
+    async function syncCatalogRatings() {
+      try {
+        const data = await api.books.list({ limit: 100 });
+        if (isMounted && data && Array.isArray(data)) {
+          setBooks((prev) =>
+            prev.map((local) => {
+              const remote = data.find((r) => r.id === local.id || r.isbn === local.isbn);
+              if (remote) {
+                return {
+                  ...local,
+                  rating: Number(remote.rating ?? local.rating),
+                  ratings_count: Number(remote.ratings_count ?? local.ratings_count ?? 0)
+                };
+              }
+              return local;
+            })
+          );
+        }
+      } catch {
+        // Silently keep mock data if API is loading or network is offline
+      }
+    }
+    syncCatalogRatings();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Sync language and dir with DOM & sync initial welcome message
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -834,6 +865,83 @@ export function LibraryProvider({ children }) {
 
   const closeAIDrawer = () => setIsAIDrawerOpen(false);
 
+  // Action: Rate book (Member / authenticated user flow)
+  const rateBook = async (bookId, ratingVal, reviewText = '') => {
+    if (!auth?.isAuthenticated) {
+      addToast({
+        type: 'warning',
+        title: lang === 'en' ? 'Sign In Required' : 'تسجيل الدخول مطلوب',
+        message: lang === 'en'
+          ? 'Please log in to your account first to rate this book.'
+          : 'يرجى تسجيل الدخول أولاً لتتمكن من تقييم هذا الكتاب.'
+      });
+      navigate('/login');
+      return { success: false, requireAuth: true };
+    }
+
+    try {
+      const numericId = parseInt(bookId, 10);
+      const res = await api.books.rate(numericId, {
+        rating: ratingVal,
+        review: reviewText
+      });
+
+      const newAvg = res?.averageRating !== undefined ? res.averageRating : ratingVal;
+      const newCount = res?.ratingsCount;
+
+      setBooks((prev) =>
+        prev.map((b) => {
+          if (b.id === numericId) {
+            return {
+              ...b,
+              rating: newAvg,
+              ratings_count: newCount !== undefined ? newCount : (b.ratings_count || 0) + 1
+            };
+          }
+          return b;
+        })
+      );
+
+      setSelectedBook((prev) => {
+        if (prev && prev.id === numericId) {
+          return {
+            ...prev,
+            rating: newAvg,
+            ratings_count: newCount !== undefined ? newCount : (prev.ratings_count || 0) + 1
+          };
+        }
+        return prev;
+      });
+
+      addToast({
+        type: 'success',
+        title: lang === 'en' ? 'Rating Submitted' : 'تم حفظ التقييم',
+        message: lang === 'en'
+          ? `Thank you! Your ${ratingVal}-star rating has been registered.`
+          : `شكراً لك! تم تسجيل تقييمك (${ratingVal} نجوم) بنجاح.`
+      });
+
+      recordAudit(
+        'تقييم كتاب',
+        'Book',
+        numericId,
+        `تم تسجيل تقييم ${ratingVal} نجوم بواسطة ${currentUser?.name || 'عضو'}${reviewText ? `: "${reviewText.substring(0, 30)}..."` : ''}`,
+        'Rate Book',
+        `Registered ${ratingVal}-star rating by ${currentUser?.name || 'Member'}`
+      );
+
+      return { success: true, data: res };
+    } catch (err) {
+      console.error('Failed to rate book:', err);
+      addToast({
+        type: 'danger',
+        title: lang === 'en' ? 'Rating Failed' : 'فشل حفظ التقييم',
+        message: err.message || (lang === 'en' ? 'Failed to submit rating' : 'حدث خطأ أثناء حفظ التقييم')
+      });
+      return { success: false, error: err };
+    }
+  };
+
   return (
     <LibraryContext.Provider
       value={{
@@ -878,7 +986,8 @@ export function LibraryProvider({ children }) {
         addBook,
         updateCopyStatus,
         updatePolicies,
-        addStaffMember
+        addStaffMember,
+        rateBook
       }}
     >
       {children}

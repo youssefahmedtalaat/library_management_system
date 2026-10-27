@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, BookOpen, MapPin, Hash, Star, Calendar, BookmarkCheck, Building, Globe, Layers, CheckCircle } from 'lucide-react';
 import StatusBadge from './StatusBadge';
+import StarRatingWidget from './StarRatingWidget';
 import { useLibrary } from '../context/LibraryContext';
+import { api } from '../services/api';
 import {
   getBookTitle,
   getBookAuthor,
@@ -26,6 +28,22 @@ export default function BookDetailsModal() {
     t
   } = useLibrary();
 
+  const [ratingsData, setRatingsData] = useState(null);
+
+  const fetchRatings = useCallback(async () => {
+    if (!selectedBook?.id) return;
+    try {
+      const data = await api.books.getRatings(selectedBook.id);
+      if (data) setRatingsData(data);
+    } catch {
+      // Keep silent fallback if guest or offline
+    }
+  }, [selectedBook?.id]);
+
+  useEffect(() => {
+    fetchRatings();
+  }, [fetchRatings]);
+
   if (!selectedBook) return null;
 
   const copies = bookCopies.filter((c) => c.book_id === selectedBook.id);
@@ -44,6 +62,12 @@ export default function BookDetailsModal() {
   const displayPublisher = getBookPublisher(selectedBook, lang);
   const displayLanguage = getBookLanguage(selectedBook, lang);
   const displayShelf = getBookShelf(selectedBook, lang);
+
+  const avgRating = Number(ratingsData?.averageRating ?? selectedBook.rating ?? 0);
+  const totalRatings = Number(ratingsData?.totalRatings ?? selectedBook.ratings_count ?? 0);
+  const distribution = ratingsData?.distribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  const reviews = ratingsData?.reviews || [];
+  const myRating = ratingsData?.myRating || null;
 
   return (
     <div className="modal-backdrop" onClick={closeBookModal}>
@@ -90,9 +114,11 @@ export default function BookDetailsModal() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <span className="badge badge-neutral">{displayCategory}</span>
-                <span className="badge badge-ai" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span className="badge badge-ai" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontWeight: 700 }}>
                   <Star size={12} fill="var(--color-ai-accent)" />
-                  {selectedBook.rating} {lang === 'en' ? 'Reader Rating' : 'تقييم القراء'}
+                  <span>{avgRating > 0 ? avgRating.toFixed(1) : selectedBook.rating}</span>
+                  {totalRatings > 0 && <span style={{ opacity: 0.85, fontSize: '0.75rem' }}>({totalRatings})</span>}
+                  <span>{lang === 'en' ? 'Reader Rating' : 'تقييم القراء'}</span>
                 </span>
                 <StatusBadge
                   status={selectedBook.available_copies > 0 ? 'available' : 'borrowed'}
@@ -236,6 +262,205 @@ export default function BookDetailsModal() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Ratings & Reviews Section */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              borderTop: '1px solid var(--border-subtle)',
+              paddingTop: '20px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                <Star size={18} fill="#F59E0B" color="#F59E0B" />
+                <span>{t('ratings.title')}</span>
+                {totalRatings > 0 && (
+                  <span
+                    style={{
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                      color: '#B45309',
+                      padding: '2px 8px',
+                      borderRadius: 'var(--radius-full)'
+                    }}
+                  >
+                    {totalRatings} {lang === 'en' ? 'reviews' : 'تقييم'}
+                  </span>
+                )}
+              </h3>
+            </div>
+
+            {/* Score Breakdown & Interactive Widget Grid */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '16px',
+                alignItems: 'start'
+              }}
+            >
+              {/* Score & Distribution Breakdown */}
+              <div
+                style={{
+                  padding: '16px',
+                  borderRadius: 'var(--radius-xl)',
+                  backgroundColor: 'var(--bg-muted)',
+                  border: '1px solid var(--border-subtle)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ textAlign: 'center', minWidth: '70px' }}>
+                    <div style={{ fontSize: '2.4rem', fontWeight: 800, color: '#B45309', lineHeight: 1 }}>
+                      {avgRating > 0 ? avgRating.toFixed(1) : '—'}
+                    </div>
+                    <div style={{ display: 'flex', gap: '2px', justifyContent: 'center', marginTop: '6px' }}>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star
+                          key={s}
+                          size={13}
+                          fill={s <= Math.round(avgRating) ? '#F59E0B' : 'transparent'}
+                          color={s <= Math.round(avgRating) ? '#F59E0B' : 'var(--border-strong)'}
+                        />
+                      ))}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                      {totalRatings} {lang === 'en' ? 'ratings' : 'تقييم'}
+                    </div>
+                  </div>
+
+                  {/* 5 to 1 Star Progress Bars */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    {[5, 4, 3, 2, 1].map((stars) => {
+                      const count = distribution[stars] || 0;
+                      const percent = totalRatings > 0 ? Math.round((count / totalRatings) * 100) : 0;
+                      return (
+                        <div key={stars} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.74rem' }}>
+                          <span style={{ width: '22px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                            {stars}★
+                          </span>
+                          <div
+                            style={{
+                              flex: 1,
+                              height: '7px',
+                              backgroundColor: 'var(--bg-surface)',
+                              borderRadius: 'var(--radius-full)',
+                              overflow: 'hidden',
+                              border: '1px solid var(--border-subtle)'
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${percent}%`,
+                                height: '100%',
+                                backgroundColor: '#F59E0B',
+                                borderRadius: 'var(--radius-full)',
+                                transition: 'width 0.4s ease'
+                              }}
+                            />
+                          </div>
+                          <span style={{ width: '24px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.7rem' }}>
+                            {count}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* User Interactive Rating Widget */}
+              <StarRatingWidget
+                bookId={selectedBook.id}
+                initialRating={myRating?.rating || 0}
+                initialReview={myRating?.review || ''}
+                onRatingSubmitted={() => fetchRatings()}
+              />
+            </div>
+
+            {/* Recent Reviews List */}
+            {reviews.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  {lang === 'en' ? 'Reader Reviews' : 'مراجعات القراء'}
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '220px', overflowY: 'auto', paddingInlineEnd: '4px' }}>
+                  {reviews.map((rev) => (
+                    <div
+                      key={rev.id}
+                      style={{
+                        padding: '12px 14px',
+                        borderRadius: 'var(--radius-lg)',
+                        backgroundColor: 'var(--bg-muted)',
+                        border: '1px solid var(--border-subtle)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div
+                            style={{
+                              width: '26px',
+                              height: '26px',
+                              borderRadius: '50%',
+                              backgroundColor: 'var(--color-primary)',
+                              color: '#fff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.75rem',
+                              fontWeight: 700
+                            }}
+                          >
+                            {rev.user_name ? rev.user_name[0] : 'U'}
+                          </div>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {rev.user_name}
+                          </span>
+                          <span className="badge badge-neutral" style={{ fontSize: '0.68rem', padding: '2px 6px' }}>
+                            {rev.user_role === 'member' ? (lang === 'en' ? 'Member' : 'عضو') : rev.user_role}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              size={12}
+                              fill={s <= rev.rating ? '#F59E0B' : 'transparent'}
+                              color={s <= rev.rating ? '#F59E0B' : 'var(--border-strong)'}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {rev.review && (
+                        <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                          "{rev.review}"
+                        </p>
+                      )}
+
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                        {new Date(rev.created_at || rev.updated_at).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>
+                {t('ratings.noRatingsYet')}
+              </p>
+            )}
           </div>
         </div>
 

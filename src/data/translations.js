@@ -154,6 +154,31 @@ export const translations = {
       },
     },
 
+    // Ratings & Reviews
+    ratings: {
+      title: 'تقييمات ومراجعات القراء',
+      rateThisBook: 'قيّم هذا الكتاب',
+      yourRating: 'تقييمك الحالي',
+      updateRating: 'تحديث تقييمك',
+      loginToRate: 'سجّل الدخول لكتابة تقييم ومراجعة',
+      writeReviewPlaceholder: 'اكتب انطباعك أو مراجعتك المختصرة عن الكتاب (اختياري)...',
+      submitBtn: 'إرسال التقييم',
+      submitting: 'جاري الحفظ...',
+      totalRatings: '{n} تقييم',
+      noRatingsYet: 'لا توجد مراجعات مكتوبة بعد، كن أول من يقيّم هذا الكتاب!',
+      ratingSuccess: 'تم حفظ تقييمك بنجاح ⭐',
+      ratingError: 'تعذر حفظ التقييم، يرجى المحاولة مرة أخرى',
+      stars1: 'ضعيف جداً',
+      stars2: 'مقبول',
+      stars3: 'جيد',
+      stars4: 'جيد جداً',
+      stars5: 'ممتاز / تحفة فكرية',
+      breakdown: 'توزيع التقييمات',
+      verifiedReader: 'قارئ معتمد',
+      rateBookAction: 'تقييم الكتاب',
+      averageScore: 'متوسط التقييم العام',
+    },
+
     // AI Drawer
     ai: {
       drawerTitle: 'أمين المكتبة الذكي',
@@ -527,6 +552,31 @@ export const translations = {
         reserved: 'Reserved',
         maintenance: 'Maintenance & Repair',
       },
+    },
+
+    // Ratings & Reviews
+    ratings: {
+      title: 'Reader Ratings & Reviews',
+      rateThisBook: 'Rate this book',
+      yourRating: 'Your rating',
+      updateRating: 'Update your rating',
+      loginToRate: 'Sign in to rate and review this book',
+      writeReviewPlaceholder: 'Share your thoughts or a brief review (optional)...',
+      submitBtn: 'Submit Rating',
+      submitting: 'Saving...',
+      totalRatings: '{n} ratings',
+      noRatingsYet: 'No written reviews yet. Be the first to review this book!',
+      ratingSuccess: 'Your rating was submitted successfully ⭐',
+      ratingError: 'Failed to submit rating, please try again',
+      stars1: 'Poor',
+      stars2: 'Fair',
+      stars3: 'Good',
+      stars4: 'Very Good',
+      stars5: 'Masterpiece',
+      breakdown: 'Rating Distribution',
+      verifiedReader: 'Verified Reader',
+      rateBookAction: 'Rate Book',
+      averageScore: 'Overall Reader Rating',
     },
 
     // AI Drawer

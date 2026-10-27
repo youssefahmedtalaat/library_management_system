@@ -46,6 +46,12 @@ export async function initializeDatabase() {
     await dbConn.query(schemaSql);
     console.log('✅ Schema tables, constraints, and indexes created.');
 
+    try {
+      await dbConn.query('ALTER TABLE books ADD COLUMN ratings_count INT NOT NULL DEFAULT 0 AFTER rating');
+    } catch {
+      // Column already exists, ignore
+    }
+
     const seedsSql = fs.readFileSync(path.join(__dirname, 'seeds.sql'), 'utf-8');
     console.log('⏳ Running seeds.sql...');
     await dbConn.query(seedsSql);

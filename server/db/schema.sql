@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS books (
   pages INT NULL,
   edition VARCHAR(50) NULL,
   rating DECIMAL(3,2) DEFAULT 4.50,
+  ratings_count INT NOT NULL DEFAULT 0,
   status ENUM('active', 'archived') NOT NULL DEFAULT 'active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -202,4 +203,20 @@ CREATE TABLE IF NOT EXISTS policies (
   policy_value VARCHAR(255) NOT NULL,
   description VARCHAR(255) NULL,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 15. Book Ratings & Reader Reviews (Interactive rating system)
+CREATE TABLE IF NOT EXISTS book_ratings (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  book_id INT NOT NULL,
+  user_id INT NOT NULL,
+  rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  review TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_book_user_rating (book_id, user_id),
+  FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_ratings_book (book_id),
+  INDEX idx_ratings_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

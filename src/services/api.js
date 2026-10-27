@@ -67,7 +67,9 @@ export const api = {
     update: (id, bookData) => request(`/books/${id}`, { method: 'PUT', body: JSON.stringify(bookData) }),
     delete: (id) => request(`/books/${id}`, { method: 'DELETE' }),
     categories: () => request('/books/categories'),
-    authors: () => request('/books/authors')
+    authors: () => request('/books/authors'),
+    getRatings: (id) => request(`/books/${id}/ratings`),
+    rate: (id, ratingData) => request(`/books/${id}/ratings`, { method: 'POST', body: JSON.stringify(ratingData) })
   },
 
   // Circulation (Loans, Returns, Renewals)

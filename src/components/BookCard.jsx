@@ -65,28 +65,50 @@ export default function BookCard({ book }) {
           />
         </div>
 
-        <div
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            openBookModal(book);
+          }}
+          title={lang === 'en' ? `${book.rating} (${book.ratings_count || 0} reviews) - Click to view reviews & rate` : `${book.rating} (${book.ratings_count || 0} تقييم) - انقر لعرض المراجعات والتقييم`}
           style={{
             position: 'absolute',
             top: '12px',
             left: isRTL ? '12px' : 'auto',
             right: isRTL ? 'auto' : '12px',
             zIndex: 2,
-            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
             color: '#FCD34D',
-            padding: '3px 8px',
+            padding: '3px 9px',
             borderRadius: 'var(--radius-full)',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
+            gap: '5px',
             fontSize: '0.78rem',
             fontWeight: 700,
-            backdropFilter: 'blur(4px)'
+            backdropFilter: 'blur(6px)',
+            border: '1px solid rgba(252, 211, 77, 0.35)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.08)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1.0)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.75)';
           }}
         >
           <Star size={13} fill="#FCD34D" color="#FCD34D" />
           <span>{book.rating}</span>
-        </div>
+          {Boolean(book.ratings_count) && (
+            <span style={{ fontSize: '0.72rem', opacity: 0.85, fontWeight: 500 }}>
+              ({book.ratings_count})
+            </span>
+          )}
+        </button>
 
         {/* Category Tag on Cover bottom */}
         <div

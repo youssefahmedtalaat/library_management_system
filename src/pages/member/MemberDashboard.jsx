@@ -5,7 +5,8 @@ import {
   CheckCircle2,
   BookmarkCheck,
   ShieldCheck,
-  XCircle
+  XCircle,
+  Star
 } from 'lucide-react';
 import { useLibrary } from '../../context/LibraryContext';
 import StatusBadge from '../../components/StatusBadge';
@@ -278,13 +279,25 @@ export default function MemberDashboard() {
                     </button>
 
                     {bookObj && (
-                      <button
-                        type="button"
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => openBookModal(bookObj)}
-                      >
-                        {lang === 'en' ? 'Details' : 'تفاصيل'}
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => openBookModal(bookObj)}
+                          title={lang === 'en' ? 'Rate & review this book' : 'تقييم ومراجعة هذا الكتاب'}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          <Star size={13} fill="#F59E0B" color="#F59E0B" />
+                          <span>{lang === 'en' ? 'Rate' : 'تقييم'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => openBookModal(bookObj)}
+                        >
+                          {lang === 'en' ? 'Details' : 'تفاصيل'}
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
