@@ -49,7 +49,9 @@ export function LibraryProvider({ children }) {
   const setCurrentRole = useCallback(() => {}, []);
 
   // Current logged in member ID
-  const currentMemberId = currentUser?.memberId || 1;
+  const [overrideMemberId, setOverrideMemberId] = useState(null);
+  const currentMemberId = overrideMemberId || currentUser?.memberId || 1;
+  const setCurrentMemberId = setOverrideMemberId;
 
   // Active navigation tab with route dispatcher
   const [activeTab, setActiveTabState] = useState('catalog');
