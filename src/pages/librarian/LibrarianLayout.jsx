@@ -20,7 +20,7 @@ const librarianNavItems = [
   { to: '/librarian/overdues', label: 'المتأخرات والغرامات', labelEn: 'Overdues & Fines', icon: AlertTriangle },
 ];
 
-function DashboardSidebar({ navItems, accentColor }) {
+function DashboardSidebar({ navItems }) {
   const { lang, toggleTheme, toggleLang, theme, openAIDrawer, loans, reservations } = useLibrary();
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ function DashboardSidebar({ navItems, accentColor }) {
       {/* Logo */}
       <div className="dashboard-sidebar-header">
         <div className="dashboard-sidebar-logo">
-          <div className="dashboard-sidebar-logo-icon" style={{ background: `${accentColor}20`, color: accentColor }}>
+          <div className="dashboard-sidebar-logo-icon">
             <BookOpen size={20} />
           </div>
           <div className="dashboard-sidebar-logo-text">
@@ -50,15 +50,15 @@ function DashboardSidebar({ navItems, accentColor }) {
       </div>
 
       {/* User Card */}
-      <div className="dashboard-sidebar-user-card" style={{ borderColor: `${accentColor}30` }}>
-        <div className="dashboard-sidebar-user-avatar" style={{ background: `${accentColor}20`, color: accentColor }}>
-          {currentUser?.avatarLetter || '?'}
+      <div className="dashboard-sidebar-user-card">
+        <div className="dashboard-sidebar-user-avatar">
+          {currentUser?.avatarLetter || 'S'}
         </div>
         <div className="dashboard-sidebar-user-info">
           <span className="dashboard-sidebar-user-name">
             {isAr ? currentUser?.name_ar : currentUser?.name}
           </span>
-          <span className="dashboard-sidebar-user-role" style={{ color: accentColor }}>
+          <span className="dashboard-sidebar-user-role">
             {isAr
               ? (currentUser?.role === 'librarian' ? 'أمين المكتبة' : 'مدير النظام')
               : (currentUser?.role === 'librarian' ? 'Librarian' : 'System Admin')}
@@ -87,9 +87,6 @@ function DashboardSidebar({ navItems, accentColor }) {
               end={item.end}
               className={({ isActive }) =>
                 `dashboard-sidebar-nav-item ${isActive ? 'active' : ''}`
-              }
-              style={({ isActive }) =>
-                isActive ? { background: accentColor, color: '#fff' } : {}
               }
             >
               <Icon size={17} />
@@ -300,7 +297,7 @@ function DashboardTopBar() {
 export default function LibrarianLayout() {
   return (
     <div className="app-layout">
-      <DashboardSidebar navItems={librarianNavItems} accentColor="#8B5CF6" />
+      <DashboardSidebar navItems={librarianNavItems} />
       <div className="app-main">
         <DashboardTopBar />
         <main className="main-content">

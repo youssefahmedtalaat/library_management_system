@@ -22,7 +22,6 @@ function AdminSidebar() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const isAr = lang === 'ar';
-  const accentColor = '#F59E0B';
 
   const handleLogout = () => {
     logout();
@@ -34,7 +33,7 @@ function AdminSidebar() {
       {/* Logo */}
       <div className="dashboard-sidebar-header">
         <div className="dashboard-sidebar-logo">
-          <div className="dashboard-sidebar-logo-icon" style={{ background: `${accentColor}20`, color: accentColor }}>
+          <div className="dashboard-sidebar-logo-icon">
             <BookOpen size={20} />
           </div>
           <div className="dashboard-sidebar-logo-text">
@@ -45,15 +44,15 @@ function AdminSidebar() {
       </div>
 
       {/* User Card */}
-      <div className="dashboard-sidebar-user-card" style={{ borderColor: `${accentColor}30` }}>
-        <div className="dashboard-sidebar-user-avatar" style={{ background: `${accentColor}20`, color: accentColor }}>
+      <div className="dashboard-sidebar-user-card">
+        <div className="dashboard-sidebar-user-avatar">
           {currentUser?.avatarLetter || 'H'}
         </div>
         <div className="dashboard-sidebar-user-info">
           <span className="dashboard-sidebar-user-name">
             {isAr ? currentUser?.name_ar : currentUser?.name}
           </span>
-          <span className="dashboard-sidebar-user-role" style={{ color: accentColor }}>
+          <span className="dashboard-sidebar-user-role">
             {isAr ? 'مدير النظام' : 'System Admin'}
           </span>
         </div>
@@ -73,9 +72,6 @@ function AdminSidebar() {
               end={item.end}
               className={({ isActive }) =>
                 `dashboard-sidebar-nav-item ${isActive ? 'active' : ''}`
-              }
-              style={({ isActive }) =>
-                isActive ? { background: accentColor, color: '#fff' } : {}
               }
             >
               <Icon size={17} />
