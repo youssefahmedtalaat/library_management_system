@@ -42,7 +42,7 @@ export default function BookCard({ book }) {
             transition: 'transform 0.4s ease'
           }}
           onError={(e) => {
-            e.target.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
+            e.target.src = '/images/books/clean-code.jpg';
           }}
           onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.04)')}
           onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}

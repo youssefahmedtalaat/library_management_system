@@ -612,7 +612,7 @@ export function LibraryProvider({ children }) {
       publication_year: parseInt(newBook.publication_year, 10) || 2026,
       language: newBook.language || 'العربية',
       category: newBook.category || 'عام',
-      cover_image: newBook.cover_image || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
+      cover_image: newBook.cover_image || '/images/books/clean-code.jpg',
       description: newBook.description || 'لا يوجد وصف مدخل لهذا العنوان.',
       shelf_location: newBook.shelf_location || 'جناح عام - رف G-01',
       total_copies: copiesCount,
