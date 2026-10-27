@@ -1209,6 +1209,27 @@ html[dir="ltr"] .dashboard-sidebar-nav-item.active::before {
   font-size: 0.88rem;
   font-weight: 700;
   text-decoration: none;
+  color: #FFFFFF !important;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.public-login-btn:hover,
+.public-login-btn:focus,
+.public-login-btn:active {
+  color: #FFFFFF !important;
+  background-color: var(--color-primary-hover) !important;
+  box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+  transform: translateY(-1px);
+}
+
+.public-login-btn svg,
+.public-login-btn span,
+.public-login-btn:hover svg,
+.public-login-btn:hover span {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 
 .public-user-area {
@@ -2749,6 +2770,24 @@ html[dir="rtl"] .select-wrapper .select-arrow {
     font-weight: 700;
     border-radius: var(--radius-lg);
     text-decoration: none;
+    color: #FFFFFF !important;
+    background-color: var(--color-primary);
+    transition: all var(--transition-fast);
+  }
+
+  .public-mobile-login-btn:hover,
+  .public-mobile-login-btn:focus,
+  .public-mobile-login-btn:active {
+    color: #FFFFFF !important;
+    background-color: var(--color-primary-hover) !important;
+  }
+
+  .public-mobile-login-btn svg,
+  .public-mobile-login-btn span,
+  .public-mobile-login-btn:hover svg,
+  .public-mobile-login-btn:hover span {
+    color: #FFFFFF !important;
+    stroke: #FFFFFF !important;
   }
 
   .public-mobile-user-card {
