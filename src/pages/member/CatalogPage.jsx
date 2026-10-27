@@ -205,6 +205,25 @@ export default function CatalogPage() {
             )}
           </div>
 
+          {/* Category filter dropdown */}
+          <div style={{ flex: '0 1 200px', minWidth: '180px' }}>
+            <div className="select-wrapper">
+              <select
+                className="form-select"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                aria-label={t('catalog.categoriesLabel') || 'Categories'}
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {getCategoryLabel(cat, lang)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={15} className="select-arrow" />
+            </div>
+          </div>
+
           {/* Availability filter */}
           <div style={{ flex: '0 1 180px', minWidth: '160px' }}>
             <div className="select-wrapper">
@@ -252,40 +271,6 @@ export default function CatalogPage() {
               <ChevronDown size={15} className="select-arrow" />
             </div>
           </div>
-        </div>
-
-        {/* Category Filter Chips */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', overflowX: 'auto', paddingBottom: '4px' }}>
-          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-            {t('catalog.categoriesLabel')}
-          </span>
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat;
-            const label = getCategoryLabel(cat, lang);
-
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: '5px 12px',
-                  borderRadius: 'var(--radius-full)',
-                  border: '1px solid',
-                  borderColor: isSelected ? 'var(--color-primary)' : 'var(--border-subtle)',
-                  backgroundColor: isSelected ? 'var(--color-primary)' : 'var(--bg-muted)',
-                  color: isSelected ? '#FFFFFF' : 'var(--text-primary)',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all var(--transition-fast)'
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
         </div>
       </div>
 

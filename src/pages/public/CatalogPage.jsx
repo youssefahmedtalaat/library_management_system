@@ -177,6 +177,25 @@ export default function CatalogPage() {
 
           {/* Select filters group */}
           <div className="catalog-filters-group">
+            {/* Category filter dropdown */}
+            <div className="catalog-filter-item" style={{ minWidth: '185px' }}>
+              <div className="select-wrapper">
+                <select
+                  className="form-select"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  aria-label={t('catalog.categoriesLabel') || 'Categories'}
+                >
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {getCategoryLabel(cat, lang)}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={15} className="select-arrow" />
+              </div>
+            </div>
+
             {/* Availability filter */}
             <div className="catalog-filter-item">
               <div className="select-wrapper">
@@ -224,30 +243,6 @@ export default function CatalogPage() {
                 <ChevronDown size={15} className="select-arrow" />
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Category Filter Chips */}
-        <div className="catalog-categories-bar">
-          <span className="catalog-categories-label">
-            {t('catalog.categoriesLabel')}
-          </span>
-          <div className="catalog-categories-list">
-            {categories.map((cat) => {
-              const isSelected = selectedCategory === cat;
-              const label = getCategoryLabel(cat, lang);
-
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`catalog-category-chip ${isSelected ? 'active' : ''}`}
-                >
-                  {label}
-                </button>
-              );
-            })}
           </div>
         </div>
       </div>

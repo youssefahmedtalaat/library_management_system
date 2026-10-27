@@ -2087,7 +2087,9 @@ html[dir="rtl"] .select-wrapper .form-select {
 
 .select-wrapper .select-arrow {
   position: absolute;
+  top: 50%;
   right: 12px;
+  transform: translateY(-50%);
   pointer-events: none;
   color: var(--text-muted);
   transition: transform var(--transition-fast), color var(--transition-fast);
@@ -2104,7 +2106,7 @@ html[dir="rtl"] .select-wrapper .select-arrow {
 
 .select-wrapper:focus-within .select-arrow {
   color: var(--color-primary);
-  transform: rotate(180deg);
+  transform: translateY(-50%) rotate(180deg);
 }
 
 /* ═══════════════════════════════════════════════
