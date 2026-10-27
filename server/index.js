@@ -70,7 +70,7 @@ async function startServer() {
       }
     }
 
-    app.listen(env.port, () => {
+    app.listen(env.port, '0.0.0.0', () => {
       console.log(`\n======================================================`);
       console.log(`🚀 Smart Library LMS Backend Server Running!`);
       console.log(`📡 URL: http://localhost:${env.port}`);

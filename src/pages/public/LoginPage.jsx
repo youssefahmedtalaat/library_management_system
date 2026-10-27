@@ -44,7 +44,7 @@ const demoAccounts = [
     label_ar: 'مدير النظام',
     name: 'Dr. Hesham Al-Qasimi',
     name_ar: 'د. هشام القاسمي',
-    email: 'hesham@library.sa',
+    email: 'admin@library.sa',
     password: 'admin123',
     color: '#F59E0B',
     desc: 'Staff management & system policies',
