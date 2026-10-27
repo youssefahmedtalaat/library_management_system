@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   BookOpen, Sparkles, Sun, Moon, Globe, LogOut,
-  Clock, LogIn, LayoutDashboard, Shield, User, ChevronDown
+  Clock, LogIn, LayoutDashboard, Shield, User, ChevronDown,
+  Menu, X
 } from 'lucide-react';
 import { useLibrary } from '../../context/LibraryContext';
 import { useAuth } from '../../context/AuthContext';
@@ -19,6 +20,13 @@ export default function PublicLayout() {
   const location = useLocation();
   const isAr = lang === 'ar';
   const isLoginRoute = location.pathname === '/login';
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on location change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const memberActiveLoans = loans.filter((l) => l.member_id === currentMemberId && !l.returned_at);
   const memberActiveRes = reservations.filter((r) => r.member_id === currentMemberId && r.status === 'active');
@@ -153,8 +161,128 @@ export default function PublicLayout() {
                   </div>
                 </div>
               )}
+              {/* Mobile Menu Toggle Button */}
+              <button
+                type="button"
+                className="public-mobile-menu-btn"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={isMobileMenuOpen}
+              >
+                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
             </div>
           </div>
+
+          {/* Mobile Collapsible Navigation Menu */}
+          {isMobileMenuOpen && (
+            <div className="public-mobile-nav-panel">
+              <nav className="public-mobile-nav-links">
+                <NavLink
+                  to="/"
+                  end
+                  className={({ isActive }) => `public-mobile-nav-link ${isActive && !isLoginRoute ? 'active' : ''}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <BookOpen size={18} />
+                  <span>{isAr ? 'فهرس الكتب' : 'Book Catalog'}</span>
+                </NavLink>
+
+                <NavLink
+                  to="/my-loans"
+                  onClick={(e) => {
+                    setIsMobileMenuOpen(false);
+                    handleMyLoansClick(e);
+                  }}
+                  className={({ isActive }) => `public-mobile-nav-link ${isActive ? 'active' : ''}`}
+                >
+                  <Clock size={18} />
+                  <span>{isAr ? 'إعاراتي وحجوزاتي' : 'My Loans & Reservations'}</span>
+                  {isAuthenticated && currentUser?.role === 'member' && totalMemberActivity > 0 && (
+                    <span className="public-nav-badge">{totalMemberActivity}</span>
+                  )}
+                </NavLink>
+
+                <button
+                  type="button"
+                  className="public-mobile-nav-link public-mobile-ai-link"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    openAIDrawer();
+                  }}
+                >
+                  <Sparkles size={18} />
+                  <span>{isAr ? 'المساعد الذكي' : 'AI Assistant'}</span>
+                </button>
+              </nav>
+
+              {/* Mobile Auth and User Profile Section */}
+              <div className="public-mobile-auth-section">
+                {!isAuthenticated ? (
+                  <Link
+                    to="/login"
+                    className="btn btn-primary public-mobile-login-btn"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <LogIn size={16} />
+                    <span>{isAr ? 'تسجيل الدخول / حساب جديد' : 'Sign In / Sign Up'}</span>
+                  </Link>
+                ) : (
+                  <div className="public-mobile-user-card">
+                    <div className="public-mobile-user-header">
+                      <div className="public-user-avatar">
+                        {currentUser?.avatarLetter || currentUser?.name?.charAt(0) || 'U'}
+                      </div>
+                      <div className="public-mobile-user-details">
+                        <span className="public-mobile-user-name">
+                          {isAr ? currentUser?.name_ar || currentUser?.name : currentUser?.name}
+                        </span>
+                        <span className="public-mobile-user-role">
+                          {currentUser?.role === 'member'
+                            ? (isAr ? 'عضو مسجل' : 'Registered Member')
+                            : currentUser?.role === 'librarian'
+                            ? (isAr ? 'أمين المكتبة' : 'Librarian')
+                            : (isAr ? 'مدير النظام' : 'System Admin')}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="public-logout-btn"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          handleLogout();
+                        }}
+                        title={isAr ? 'تسجيل الخروج' : 'Log out'}
+                      >
+                        <LogOut size={16} />
+                      </button>
+                    </div>
+
+                    {currentUser?.role === 'librarian' && (
+                      <Link
+                        to="/librarian"
+                        className="btn btn-secondary public-mobile-dashboard-btn"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <LayoutDashboard size={16} />
+                        <span>{isAr ? 'لوحة أمين المكتبة' : 'Librarian Dashboard'}</span>
+                      </Link>
+                    )}
+                    {currentUser?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        className="btn btn-secondary public-mobile-dashboard-btn"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Shield size={16} />
+                        <span>{isAr ? 'لوحة الإدارة' : 'Admin Dashboard'}</span>
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </header>
 
         {/* Main Page Content */}
