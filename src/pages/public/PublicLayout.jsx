@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import BookDetailsModal from '../../components/BookDetailsModal';
 import AIAssistantDrawer from '../../components/AIAssistantDrawer';
 import ToastContainer from '../../components/ToastContainer';
+import Footer from '../../components/Footer';
 
 export default function PublicLayout() {
   const { lang, toggleTheme, toggleLang, theme, openAIDrawer, loans, reservations, currentMemberId } = useLibrary();
@@ -155,6 +156,9 @@ export default function PublicLayout() {
       <main className="public-content">
         <Outlet />
       </main>
+
+      {/* Public Footer */}
+      <Footer />
 
       {/* Global Modals & Drawers */}
       <BookDetailsModal />
