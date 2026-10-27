@@ -30,6 +30,7 @@ export default function AppRouter() {
       {/* ─── Public Website & Member Portal ─── */}
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<CatalogPage />} />
+        <Route path="login" element={<CatalogPage />} />
         <Route
           path="my-loans"
           element={
@@ -39,9 +40,6 @@ export default function AppRouter() {
           }
         />
       </Route>
-
-      {/* ─── Unified Login Page ─── */}
-      <Route path="/login" element={<LoginPage />} />
 
       {/* ─── Protected Librarian Dashboard ─── */}
       <Route

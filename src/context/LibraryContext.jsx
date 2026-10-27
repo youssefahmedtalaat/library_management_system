@@ -111,6 +111,33 @@ export function LibraryProvider({ children }) {
     localStorage.setItem('library_theme', theme);
   }, [theme]);
 
+  // Ensure logged-in member exists in the members state
+  useEffect(() => {
+    if (currentUser?.role === 'member' && currentUser?.memberId) {
+      setMembers((prev) => {
+        const exists = prev.some((m) => m.id === currentUser.memberId);
+        if (!exists) {
+          const newMem = {
+            id: currentUser.memberId,
+            user_id: currentUser.id,
+            full_name: currentUser.name,
+            full_name_ar: currentUser.name_ar || currentUser.name,
+            full_name_en: currentUser.name,
+            email: currentUser.email,
+            phone: '+966 50 000 0000',
+            member_code: `MEM-2026-${String(prev.length + 1).padStart(4, '0')}`,
+            membership_status: 'active',
+            active_loans_count: 0,
+            fines_due: 0,
+            joined_at: new Date().toISOString().split('T')[0]
+          };
+          return [newMem, ...prev];
+        }
+        return prev;
+      });
+    }
+  }, [currentUser]);
+
   // Sync language and dir with DOM & sync initial welcome message
   useEffect(() => {
     document.documentElement.lang = lang;

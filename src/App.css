@@ -2058,5 +2058,201 @@ html[dir="rtl"] .select-wrapper .select-arrow {
   transform: rotate(180deg);
 }
 
+/* ═══════════════════════════════════════════════
+   Background Blur & Login/Signup Modal Popup
+   ═══════════════════════════════════════════════ */
+
+.public-site-body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: filter 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.public-site-body.blurred {
+  filter: blur(12px) brightness(0.88);
+  pointer-events: none;
+  user-select: none;
+  transform: scale(0.995);
+}
+
+.login-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 20px;
+  overflow-y: auto;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.login-modal-card {
+  max-width: 490px;
+  max-height: 92vh;
+  overflow-y: auto;
+  animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.login-card-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+
+.login-ctrl-mini-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.login-ctrl-mini-btn:hover {
+  background: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.login-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.login-close-btn:hover {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.login-tabs-bar {
+  display: flex;
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 4px 6px 0;
+  gap: 4px;
+}
+
+.login-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.login-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.login-tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  background: var(--bg-surface);
+  font-weight: 700;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.login-tab-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-ai-surface);
+  color: var(--color-ai-accent);
+  border: 1px solid var(--color-ai-border);
+}
+
+.signup-members-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--color-ai-surface);
+  border: 1px solid var(--color-ai-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  font-size: 0.78rem;
+  color: var(--color-ai-hover);
+  line-height: 1.45;
+}
+
+.signup-members-notice .notice-icon {
+  color: var(--color-ai-accent);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.login-switch-footer {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.login-switch-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.84rem;
+  padding: 0;
+  transition: color var(--transition-fast);
+}
+
+.login-switch-btn:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+
 
 

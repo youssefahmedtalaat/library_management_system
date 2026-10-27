@@ -43,6 +43,45 @@ export function AuthProvider({ children }) {
     return { success: true, role: user.role };
   }, []);
 
+  const registerMember = useCallback((name, email, password) => {
+    setAuthError('');
+    const cleanEmail = email.trim().toLowerCase();
+    const existing = mockUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (existing) {
+      setAuthError('email_exists');
+      return { success: false, error: 'email_exists' };
+    }
+
+    const newMemberId = Date.now();
+    const newUser = {
+      id: `USR-${Date.now().toString().slice(-4)}`,
+      email: cleanEmail,
+      password,
+      role: 'member',
+      name: name.trim(),
+      name_ar: name.trim(),
+      memberId: newMemberId,
+      avatarLetter: name.trim().charAt(0).toUpperCase()
+    };
+
+    mockUsers.push(newUser);
+
+    const session = {
+      id: newUser.id,
+      email: newUser.email,
+      role: 'member',
+      name: newUser.name,
+      name_ar: newUser.name_ar,
+      memberId: newMemberId,
+      staffId: null,
+      avatarLetter: newUser.avatarLetter
+    };
+
+    localStorage.setItem('library_session', JSON.stringify(session));
+    setCurrentUser(session);
+    return { success: true, role: 'member', user: session };
+  }, []);
+
   const logout = useCallback(() => {
     localStorage.removeItem('library_session');
     setCurrentUser(null);
@@ -59,6 +98,7 @@ export function AuthProvider({ children }) {
         currentUser,
         isAuthenticated,
         login,
+        registerMember,
         logout,
         authError,
         clearAuthError
