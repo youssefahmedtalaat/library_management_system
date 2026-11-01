@@ -450,7 +450,27 @@ function Kpi({ label, value, sub, type, icon: Icon }) {
   );
 }
 
-function Dashboard() {
+function Dashboard({ onToast }) {
+  const [quickMode, setQuickMode] = useState("issue");
+  const [barcode, setBarcode] = useState("");
+  const [memberCode, setMemberCode] = useState("");
+
+  const handleQuickSubmit = (e) => {
+    e.preventDefault();
+    if (quickMode === "issue") {
+      onToast?.(barcode ? `تم تسجيل الإعارة للنسخة ${barcode} بنجاح` : "تم تسجيل الإعارة وصرف النسخة بنجاح");
+    } else {
+      onToast?.(barcode ? `تم استلام النسخة ${barcode} وإغلاق الإعارة بنجاح` : "تم تأكيد استلام النسخة وإغلاق الإعارة بنجاح");
+    }
+    setBarcode("");
+    setMemberCode("");
+  };
+
+  const handlePreset = (mode, code) => {
+    setQuickMode(mode);
+    setBarcode(code);
+  };
+
   return (
     <div>
       <PageTitle title="لوحة المتابعة" sub="نظرة شاملة على حركة المكتبة اليوم" />
@@ -463,13 +483,93 @@ function Dashboard() {
       <div className="dashboard-grid">
         <section className="panel circulation-quick">
           <div className="panel-head">
-            <div><Barcode /><span><h3>مكتب التداول السريع</h3><p>إصدار أو استلام نسخة بالباركود</p></span></div>
-            <span className="mode"><button className="active">إعارة</button><button>إرجاع</button></span>
+            <div>
+              <Barcode />
+              <span>
+                <h3>مكتب التداول السريع</h3>
+                <p>{quickMode === "issue" ? "إصدار أو استلام نسخة بالباركود" : "استلام نسخة بالباركود واحتساب التأخير"}</p>
+              </span>
+            </div>
+            <span className="mode">
+              <button
+                type="button"
+                className={quickMode === "issue" ? "active" : ""}
+                onClick={() => setQuickMode("issue")}
+              >
+                إعارة
+              </button>
+              <button
+                type="button"
+                className={quickMode === "return" ? "active" : ""}
+                onClick={() => setQuickMode("return")}
+              >
+                إرجاع
+              </button>
+            </span>
           </div>
-          <label className="form-group"><span>باركود النسخة</span><span className="input-icon"><Barcode /><input dir="ltr" placeholder="BC-xxx-xx" /></span></label>
-          <label className="form-group"><span>كود العضو</span><span className="input-icon"><Users /><input dir="ltr" placeholder="MEM-2026-0042" /></span></label>
-          <Button variant="primary" className="wide"><ArrowRightLeft size={17} />إتمام تسجيل الإعارة</Button>
-          <div className="presets"><small>نماذج سريعة</small><button dir="ltr">Issue: BC-101-01</button><button dir="ltr">Return: BC-404-02</button></div>
+          <form onSubmit={handleQuickSubmit}>
+            <label className="form-group">
+              <span>{quickMode === "issue" ? "باركود النسخة" : "باركود النسخة المسترجعة"}</span>
+              <span className="input-icon">
+                <Barcode />
+                <input
+                  dir="ltr"
+                  value={barcode}
+                  onChange={(e) => setBarcode(e.target.value)}
+                  placeholder="BC-xxx-xx"
+                />
+              </span>
+            </label>
+            {quickMode === "issue" && (
+              <label className="form-group">
+                <span>كود العضو</span>
+                <span className="input-icon">
+                  <Users />
+                  <input
+                    dir="ltr"
+                    value={memberCode}
+                    onChange={(e) => setMemberCode(e.target.value)}
+                    placeholder="MEM-2026-0042"
+                  />
+                </span>
+              </label>
+            )}
+            <Button
+              type="submit"
+              variant="primary"
+              className="wide"
+              disabled={!barcode}
+            >
+              {quickMode === "issue" ? (
+                <>
+                  <ArrowRightLeft size={17} />
+                  إتمام تسجيل الإعارة
+                </>
+              ) : (
+                <>
+                  <RotateCcw size={17} />
+                  تأكيد استلام النسخة وإغلاق الإعارة
+                </>
+              )}
+            </Button>
+          </form>
+          <div className="presets">
+            <small>نماذج سريعة</small>
+            <button
+              type="button"
+              dir="ltr"
+              onClick={() => handlePreset("issue", "BC-101-01")}
+            >
+              Issue: BC-101-01
+            </button>
+            <button
+              type="button"
+              dir="ltr"
+              onClick={() => handlePreset("return", "BC-404-02")}
+            >
+              Return: BC-404-02
+            </button>
+          </div>
         </section>
         <section className="panel">
           <div className="panel-head"><div><FileText /><span><h3>النشاط الأخير</h3><p>آخر العمليات المسجلة</p></span></div><Button variant="ghost">عرض الكل</Button></div>
@@ -611,12 +711,35 @@ function CatalogAdmin({ books, onDetails }) {
 }
 
 function Reservations({ books, onToast }) {
+  const [filter, setFilter] = useState("active");
+  const filtered = filter === "active" ? books.slice(0, 3) : books.slice(0, 5);
   return (
     <div>
-      <PageTitle title="الحجوزات وطوابير الانتظار" sub="إدارة أولوية المستفيدين ونوافذ الاستلام" action={<span className="segmented"><button className="active">النشطة (7)</button><button>الكل (24)</button></span>} />
+      <PageTitle
+        title="الحجوزات وطوابير الانتظار"
+        sub="إدارة أولوية المستفيدين ونوافذ الاستلام"
+        action={
+          <span className="segmented">
+            <button
+              type="button"
+              className={filter === "active" ? "active" : ""}
+              onClick={() => setFilter("active")}
+            >
+              النشطة (7)
+            </button>
+            <button
+              type="button"
+              className={filter === "all" ? "active" : ""}
+              onClick={() => setFilter("all")}
+            >
+              الكل (24)
+            </button>
+          </span>
+        }
+      />
       <DataTable
         columns={["عنوان الكتاب", "العضو المستفيد", "كود العضو", "موضع الطابور", "تاريخ الحجز", "انتهاء الاستلام", "الحالة", "الإجراءات"]}
-        rows={books.slice(0, 5).map((b, i) => [
+        rows={filtered.map((b, i) => [
           <b key="t">{b.title}</b>,
           <span key="u" className="with-icon"><User />{i % 2 ? "عمر خالد" : "سارة أحمد"}</span>,
           <code key="c">MEM-2026-00{42 + i}</code>,
@@ -1267,7 +1390,7 @@ export default function App() {
   };
 
   const dashboardPage = useMemo(() => {
-    if (path === "/librarian") return <Dashboard />;
+    if (path === "/librarian") return <Dashboard onToast={setToast} />;
     if (path === "/librarian/circulation") return <Circulation onToast={setToast} books={books} />;
     if (path === "/librarian/catalog") return <CatalogAdmin books={books} onDetails={setSelected} />;
     if (path === "/librarian/reservations") return <Reservations books={books} onToast={setToast} />;
