@@ -295,3 +295,4 @@ The MySQL database schema is normalized and indexed for high concurrency and ref
   - **Admin**: `admin@library.sa` / `admin123`
   - **Librarian**: `sulaiman@library.sa` / `librarian123`
   - **Member**: `sara@library.sa` / `member123`
+
