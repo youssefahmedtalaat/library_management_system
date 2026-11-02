@@ -529,3 +529,45 @@ export async function settleFine(fineId, actorUserId) {
   await recordAuditLog(actorUserId, 'تحصيل غرامة تأخير', 'Fine', fineId, { amount: fine[0].amount });
   return { id: fineId, status: 'paid', settledAt: new Date().toISOString() };
 }
+
+/**
+ * List loans (Circulation / Dashboard)
+ */
+export async function listLoans({ status, memberId } = {}) {
+  let sql = `
+    SELECT 
+      l.id,
+      l.copy_id,
+      l.member_id,
+      l.issued_at,
+      l.due_at,
+      l.returned_at,
+      l.renewal_count,
+      l.status,
+      bc.barcode,
+      bc.shelf_location,
+      b.id AS book_id,
+      b.title AS book_title,
+      b.cover_url,
+      b.isbn,
+      m.member_code,
+      u.full_name AS member_name
+    FROM loans l
+    JOIN book_copies bc ON l.copy_id = bc.id
+    JOIN books b ON bc.book_id = b.id
+    JOIN members m ON l.member_id = m.id
+    JOIN users u ON m.user_id = u.id
+    WHERE 1=1
+  `;
+  const params = [];
+  if (status) {
+    sql += ` AND l.status = ?`;
+    params.push(status);
+  }
+  if (memberId) {
+    sql += ` AND l.member_id = ?`;
+    params.push(memberId);
+  }
+  sql += ` ORDER BY l.issued_at DESC`;
+  return await query(sql, params);
+}

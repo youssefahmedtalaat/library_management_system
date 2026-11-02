@@ -74,6 +74,13 @@ export const api = {
 
   // Circulation (Loans, Returns, Renewals)
   circulation: {
+    listLoans: (params = {}) => {
+      const search = new URLSearchParams();
+      if (params.status) search.append('status', params.status);
+      if (params.memberId) search.append('memberId', params.memberId);
+      const queryStr = search.toString();
+      return request(`/loans${queryStr ? `?${queryStr}` : ''}`);
+    },
     issueLoan: (loanData) => request('/loans', { method: 'POST', body: JSON.stringify(loanData) }),
     returnLoan: (loanId) => request(`/loans/${loanId}/return`, { method: 'POST' }),
     renewLoan: (loanId) => request(`/loans/${loanId}/renew`, { method: 'POST' }),

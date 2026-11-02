@@ -14,6 +14,16 @@ export async function issueLoan(req, res, next) {
   }
 }
 
+export async function getLoans(req, res, next) {
+  try {
+    const { status, memberId } = req.query;
+    const loans = await circService.listLoans({ status, memberId });
+    return successResponse(res, loans);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function returnLoan(req, res, next) {
   try {
     const { id } = req.params;

@@ -15,6 +15,7 @@ const router = Router();
 // POST /api/v1/fines/:id/settle
 
 // Loans
+router.get('/loans', authenticateToken, requireRole('librarian', 'admin'), circController.getLoans);
 router.post('/loans', authenticateToken, requireRole('librarian', 'admin'), circController.issueLoan);
 router.post('/loans/:id/return', authenticateToken, requireRole('librarian', 'admin'), circController.returnLoan);
 router.post('/loans/:id/renew', authenticateToken, circController.renewLoan);
