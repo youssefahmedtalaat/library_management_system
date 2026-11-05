@@ -539,9 +539,9 @@ function Footer({ t, onAI }) {
         </div>
         <div>
           <b>{t("footer.hoursContact")}</b>
-          <span><Clock size={15} />{t("footer.hours")}</span>
-          <span><MapPin size={15} />{t("footer.location")}</span>
-          <span dir="ltr"><Mail size={15} />info@smartlibrary.sa</span>
+          <span><Clock size={16} />{t("footer.hours")}</span>
+          <span><MapPin size={16} />{t("footer.location")}</span>
+          <span><Mail size={16} /><span dir="ltr">info@smartlibrary.sa</span></span>
         </div>
       </div>
       <div className="footer-bottom">
