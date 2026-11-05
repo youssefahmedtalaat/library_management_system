@@ -537,7 +537,7 @@ function Footer({ t, onAI }) {
           <button onClick={() => onAI(t("footer.promptPolicy"))}>{t("footer.lendingRules")}</button>
           <button onClick={() => navigate("/login")}>{t("footer.staffSignIn")}</button>
         </div>
-        <div>
+        <div className="footer-contact">
           <b>{t("footer.hoursContact")}</b>
           <span><Clock size={16} />{t("footer.hours")}</span>
           <span><MapPin size={16} />{t("footer.location")}</span>
@@ -2257,7 +2257,7 @@ function DashboardShell({ children, ...props }) {
 export default function App() {
   const path = useRouter();
 
-  const [lang, setLang] = useState(() => localStorage.getItem("library_lang") || "ar");
+  const [lang, setLang] = useState(() => new URLSearchParams(window.location.search).get("lang") || localStorage.getItem("library_lang") || "ar");
   const [dark, setDark] = useState(() => localStorage.getItem("library_theme") === "dark");
   const t = useMemo(() => makeT(lang), [lang]);
 
